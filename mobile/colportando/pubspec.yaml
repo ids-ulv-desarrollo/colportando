@@ -1,0 +1,65 @@
+name: colportando
+description: "Aplicación para los colportores."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  equatable: ^3.0.0
+  fl_chart: ^1.2.0
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.3.2
+  flutter_svg: ^2.3.0
+  google_fonts: ^8.2.1
+  http: ^1.6.0
+  hugeicons: ^1.2.0
+  mobile_scanner: ^7.4.2
+  qr_flutter: ^4.1.0
+  skeletonizer: ^3.0.0
+  url_launcher: ^6.3.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  # Para cambiar el identificador de paquete de la app: dart run change_app_package_name:main com.colportando.app
+  change_app_package_name: ^1.5.0
+  # Para cambiar el ícono de la app: dart run flutter_launcher_icons
+  flutter_launcher_icons: ^0.14.4
+  # Para cambiar el splash screen de la app: dart run flutter_native_splash:create
+  flutter_native_splash: ^2.4.7
+
+flutter:
+  uses-material-design: true
+  assets:
+  - assets/icons/Edu.svg
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/images/logo_t.png"
+  adaptive_icon_monochrome: "assets/images/logo_m.png"
+
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+  color: "#FFFFFF"
+  color_dark: "#010915"
+  image: assets/images/logo_t.png
+  branding: assets/images/branding.png
+  branding_dark: assets/images/branding_d.png
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#0F172A"
+    image: assets/images/logo_t.png
+    branding: assets/images/branding.png
+    branding_dark: assets/images/branding_d.png
+
+
+
