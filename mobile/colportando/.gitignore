@@ -47,6 +47,11 @@ android/local.properties
 .pub/
 /build/
 
+# Archivos generados por: dart run build_runner --delete-conflicting-outputs
+# (Freezed, JSON Serializable)
+*.freezed.dart
+*.g.dart
+
 # Symbolication related
 app.*.symbols
 
