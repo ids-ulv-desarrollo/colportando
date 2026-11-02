@@ -7,37 +7,17 @@ import 'package:flutter/material.dart';
 class AppSafe extends StatelessWidget {
   final Widget child;
   final Future<void> Function()? onRefresh;
-  final bool isScrollable;
+  final double? maxWidth;
 
   const AppSafe({
     super.key,
     required this.child,
     this.onRefresh,
-    this.isScrollable = true,
+    this.maxWidth,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Limita el ancho del contenido y lo centra en pantallas grandes.
-    final constrainedChild = Align(
-      alignment: Alignment.topCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-          maxWidth: AppBreakpoint.contentMaxWidth,
-        ),
-        child: child,
-      ),
-    );
-
-    if (!isScrollable) {
-      return SafeArea(
-        child: Padding(
-          padding: AppSpacing.paddingMedium,
-          child: constrainedChild,
-        ),
-      );
-    }
-
     // El padding va dentro del scroll para que el contenido pase por detrás de la barra inferior flotante y no se recorte antes de llegar a ella.
     final padding = AppSpacing.paddingMedium.resolve(TextDirection.ltr);
     final scrollPadding = padding.copyWith(
@@ -52,13 +32,16 @@ class AppSafe extends StatelessWidget {
             padding: scrollPadding,
             // Permitirá deslizar o refrescar siempre.
             physics: const AlwaysScrollableScrollPhysics(),
-            // Se asegura que el contenido no se desborde en pantallas pequeñas.
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - scrollPadding.vertical,
-                minWidth: constraints.maxWidth - scrollPadding.horizontal,
+            // Limita el ancho en pantallas grandes y asegura el alto mínimo para alinear verticalmente.
+            child: Align(
+              alignment: .topCenter,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - scrollPadding.vertical,
+                  maxWidth: maxWidth ?? AppBreakpoint.contentMaxWidth,
+                ),
+                child: child,
               ),
-              child: constrainedChild,
             ),
           );
 

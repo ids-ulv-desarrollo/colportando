@@ -51,11 +51,10 @@ class AppText {
   // Usado para las etiquetas de los gráficos.
   static final TextStyle label = GoogleFonts.publicSans(
     fontSize: 12,
-    color: AppColor.black,
+    color: AppColor.gray,
   );
-  // Usado para las etiquetas en modo oscuro o sobre fondos contrastantes.
-  static final TextStyle labelWhite = GoogleFonts.publicSans(
+  static final TextStyle labelDark = GoogleFonts.publicSans(
     fontSize: 12,
-    color: AppColor.white,
+    color: AppColor.grayDark,
   );
 }

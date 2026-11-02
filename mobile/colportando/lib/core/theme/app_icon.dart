@@ -1,18 +1,21 @@
 import 'package:colportando/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
 import 'package:hugeicons/hugeicons.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
 
 class AppIcon {
   // Uso general
   static const Widget home = HugeIcon(icon: HugeIcons.strokeRoundedHome07);
   static const Widget person = HugeIcon(icon: HugeIcons.strokeRoundedUser);
 
-  // static Widget edu = SvgPicture.asset(
-  //   "assets/icons/Edu.svg",
-  //   color: AppColor.white,
-  // );
   // Autentificación
+  static const Widget ios = HugeIcon(
+    icon: HugeIcons.strokeRoundedApple,
+    size: 40,
+  );
+  static const Widget google = HugeIcon(
+    icon: HugeIcons.strokeRoundedGoogle,
+    size: 40,
+  );
   static const Widget password = HugeIcon(
     icon: HugeIcons.strokeRoundedLockPassword,
   );
@@ -33,6 +36,13 @@ class AppIcon {
   static const Widget cancel = HugeIcon(icon: HugeIcons.strokeRoundedCancel01);
   static const Widget edit = HugeIcon(icon: HugeIcons.strokeRoundedEdit02);
 
+  // Operaciones y multimedia
+  static const Widget add = HugeIcon(icon: HugeIcons.strokeRoundedPlusSign);
+  static const Widget remove = HugeIcon(icon: HugeIcons.strokeRoundedMinusSign);
+  static const Widget upload = HugeIcon(icon: HugeIcons.strokeRoundedUpload01);
+  static const Widget file = HugeIcon(icon: HugeIcons.strokeRoundedFile01);
+  static const Widget camera = HugeIcon(icon: HugeIcons.strokeRoundedCamera01);
+
   // Perfil
   static const Widget lockOutline = HugeIcon(
     icon: HugeIcons.strokeRoundedLockKey,
@@ -49,10 +59,12 @@ class AppIcon {
     icon: HugeIcons.strokeRoundedDelete02,
     color: AppColor.error,
   );
-  static Widget doneAll({Color? color}) =>
-      HugeIcon(icon: HugeIcons.strokeRoundedTickDouble01, color: color);
+  static const Widget doneAll = HugeIcon(
+    icon: HugeIcons.strokeRoundedTickDouble01,
+  );
 
   // Icono de menú desplegable de depósitos.
+  static const Widget menu = HugeIcon(icon: HugeIcons.strokeRoundedMenu04);
   static const Widget moreHoriz = HugeIcon(
     icon: HugeIcons.strokeRoundedMoreHorizontal,
   );
@@ -64,30 +76,12 @@ class AppIcon {
   static const Widget arrowDown = HugeIcon(
     icon: HugeIcons.strokeRoundedArrowDown01,
   );
-
-  // Barra inferior (o lateral para pantallas grandes)
-  // Barra de navegación.
-  static const Widget homeInactive = HugeIcon(
-    icon: HugeIcons.strokeRoundedHome07,
-    color: AppColor.gray,
-  );
-  static const Widget homeSelected = HugeIcon(
-    icon: HugeIcons.strokeRoundedHome07,
-    color: AppColor.white,
-  );
-  static const Widget personInactive = HugeIcon(
-    icon: HugeIcons.strokeRoundedUser,
-    color: AppColor.gray,
-  );
-  static const Widget personSelected = HugeIcon(
-    icon: HugeIcons.strokeRoundedUser,
-    color: AppColor.white,
+  static const Widget arrowUp = HugeIcon(
+    icon: HugeIcons.strokeRoundedArrowUp01,
   );
 
   // Menú lateral / Drawer (Directiva, Colportor, Asociado)
-  static const Widget asociados = HugeIcon(
-    icon: HugeIcons.strokeRoundedUserRoadside,
-  );
+  static const Widget asociados = HugeIcon(icon: HugeIcons.strokeRoundedMuslim);
   static const Widget grupos = HugeIcon(icon: HugeIcons.strokeRoundedUserGroup);
   static const Widget participaciones = HugeIcon(
     icon: HugeIcons.strokeRoundedCheckList,
