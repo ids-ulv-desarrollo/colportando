@@ -18,8 +18,8 @@ Para clonar, compilar y ejecutar las aplicaciones de este repositorio se requier
 | Herramienta | Versión | Comando |
 | :--- | :--- | :--- |
 | **Git** | v2.30+ | `git -v` |
-| **Flutter SDK** | v3.38+ (Canal `stable`) | `flutter --version` |
-| **Dart SDK** | v3.10+ (incluido en Flutter) | `dart --version` |
+| **Flutter SDK** | v3.47+ (Canal `stable`) | `flutter --version` |
+| **Dart SDK** | v3.13+ (incluido en Flutter) | `dart --version` |
 | **Node.js** | v20 LTS+ | `node -v` |
 | **NPM** | v10+ | `npm -v` |
 | **Android Studio** | Emulador o dispositivo físico | `flutter doctor` |
@@ -48,11 +48,13 @@ Para clonar, compilar y ejecutar las aplicaciones de este repositorio se requier
    cd colportando_frontend
    ```
 
-2. **Instalar dependencias de la aplicación Móvil (Flutter)**:
+2. **Instalar dependencias y generar código de la aplicación Móvil (Flutter)**:
    ```bash
    cd mobile/colportando
    flutter pub get
+   dart run build_runner build --delete-conflicting-outputs
    ```
+   > **Nota:** El comando `build_runner` genera automáticamente los archivos de serialización y estados inmutables (`*.freezed.dart` y `*.g.dart`). Se puede usar `dart run build_runner watch --delete-conflicting-outputs` durante el desarrollo para regenerar automáticamente al guardar.
 
 3. **Instalar dependencias de la plataforma Web (React)**:
    ```bash

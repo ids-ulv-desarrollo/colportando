@@ -41,11 +41,37 @@ lib/
 │           │                           # auth_di.dart (Inyección de dependencias)
 │           ├── screens/                # signin_screen.dart, signup_screen.dart
 │           └── widgets/                # Widgets exclusivos de la feature
+│   ├── acquisitions
+│   ├── campaigns
+│   ├── catalog
+│   ├── credits
+│   ├── deposits
+│   ├── notifications
+│   ├── participants
+│   ├── progress
+│   ├── sales
+│   └── trainings
 │
 └── main.dart                           # Punto de entrada con ProviderScope
 ```
 
-### 1.2 Flujo de Datos
+### 1.2 Responsabilidades de las Features Móviles
+
+| Feature | Descripción y Alcance |
+| :--- | :--- |
+| **`auth`** | Registro, inicio de sesión, recuperación de contraseña, perfil del usuario y cierre de sesión. |
+| **`campaigns`** | Consulta de campañas activas, historial de participación y detalles operativos de la campaña. |
+| **`participants`** | Visualización y gestión de integrantes de campaña (directiva y asociados gestionan sus equipos y zonas). |
+| **`trainings`** | Programa de capacitación devocional y técnica ("Mi Camino ULV"), visualización de módulos y pase de lista. |
+| **`catalog`** | Consulta de libros, biblias y publicaciones con detalles, precios oficiales y disponibilidad. |
+| **`acquisitions`** | Solicitud y surtido de material para colportores; recepción y control de stock entregado. |
+| **`sales`** | Registro y consulta de ventas de libros al contado realizadas por el colportor. |
+| **`credits`** | Control de libros vendidos a crédito, saldo restante, registro de abonos y estados de cuenta. |
+| **`deposits`** | Subida de comprobantes de pago/transferencia, estado de validación y balance financiero personal o grupal. |
+| **`progress`** | Tablero de control con métricas clave (libros entregados, horas trabajadas, metas y resúmenes). |
+| **`notifications`** | Listado y lectura de avisos del sistema, aprobaciones de depósitos y alertas operativas. |
+
+### 1.3 Flujo de Datos
 
 1. **UI:** El usuario ejecuta una acción en la pantalla (ej. presiona un botón validado por `FormKey`).
 2. **Notifier:** La vista invoca `ref.read(authProvider.notifier).signIn(...)`. El notifier activa `isLoading: true`.
