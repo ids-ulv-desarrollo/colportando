@@ -5,8 +5,9 @@ import 'package:colportando/core/widgets/icon_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
 import 'package:flutter/material.dart';
 
+// Tarjeta para listas con soporte opcional de contenido desplegable.
 class ContainerListTile extends StatefulWidget {
-  final Function()? onTap;
+  final Function()? onPressed;
   final dynamic title;
   final Widget? icon;
   final Widget? leading;
@@ -15,9 +16,11 @@ class ContainerListTile extends StatefulWidget {
   final Widget? trailing;
   final bool showTrailing;
   final Color? color;
+  final List<Widget> expandedChild;
+
   const ContainerListTile({
     super.key,
-    this.onTap,
+    this.onPressed,
     required this.title,
     this.icon,
     this.leading,
@@ -26,6 +29,7 @@ class ContainerListTile extends StatefulWidget {
     this.trailing,
     this.showTrailing = true,
     this.color,
+    this.expandedChild = const [],
   });
 
   @override
@@ -33,10 +37,16 @@ class ContainerListTile extends StatefulWidget {
 }
 
 class _ContainerListTileState extends State<ContainerListTile> {
+  bool _isExpanded = false;
+
   @override
   Widget build(BuildContext context) {
+    final hasExpanded = widget.expandedChild.isNotEmpty;
+
     return ContainerFormat(
-      onPressed: widget.onTap,
+      onPressed: hasExpanded
+          ? () => setState(() => _isExpanded = !_isExpanded)
+          : widget.onPressed,
       children: [
         ListTile(
           leading:
@@ -46,13 +56,13 @@ class _ContainerListTileState extends State<ContainerListTile> {
                   : null),
           title: widget.title is Widget
               ? widget.title
-              : TextFormat.body(widget.title),
+              : TextFormat.subtitle(widget.title),
           subtitle: widget.subsubtitle != null
               ? Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (widget.subtitle != null) ...[
-                      TextFormat.bodySecondary(widget.subtitle!),
+                      TextFormat.body(widget.subtitle!),
                     ],
                     widget.subsubtitle is String
                         ? TextFormat.label(widget.subsubtitle)
@@ -64,9 +74,13 @@ class _ContainerListTileState extends State<ContainerListTile> {
               : null,
           contentPadding: AppSpacing.paddingSymetric8_0,
           trailing: widget.showTrailing
-              ? (widget.trailing ?? AppIcon.arrowRight)
+              ? (widget.trailing ??
+                    (hasExpanded
+                        ? (_isExpanded ? AppIcon.arrowUp : AppIcon.arrowDown)
+                        : AppIcon.arrowRight))
               : null,
         ),
+        if (_isExpanded) ...widget.expandedChild,
       ],
     );
   }

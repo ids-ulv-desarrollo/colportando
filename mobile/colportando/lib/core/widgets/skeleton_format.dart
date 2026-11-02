@@ -1,4 +1,4 @@
-import 'package:colportando/core/theme/app_color.dart';
+import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -14,18 +14,11 @@ class SkeletonFormat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Skeletonizer(
       enabled: isLoading,
-      // Se personalizan los colores para que sean coherentes con el modo oscuro/claro.
       effect: ShimmerEffect(
-        baseColor: isDark
-            ? AppColor.grayDark.withValues(alpha: 0.15)
-            : AppColor.gray.withValues(alpha: 0.15),
-        highlightColor: isDark
-            ? AppColor.white.withValues(alpha: 0.3)
-            : AppColor.black.withValues(alpha: 0.04),
+        baseColor: context.colorScheme.onSurfaceVariant.withValues(alpha: 0.15),
+        highlightColor: context.colorScheme.onSurface.withValues(alpha: 0.04),
         duration: const Duration(milliseconds: 1000),
       ),
       child: child,

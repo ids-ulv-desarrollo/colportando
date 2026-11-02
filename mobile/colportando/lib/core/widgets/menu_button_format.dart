@@ -1,3 +1,4 @@
+import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/widgets/text_format.dart';
@@ -46,9 +47,7 @@ class MenuButtonFormat extends StatelessWidget {
                 children: [
                   if (item.icon != null) ...[
                     IconTheme(
-                      data: IconThemeData(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      data: IconThemeData(color: context.colorScheme.onSurface),
                       child: item.icon!,
                     ),
                     AppSpacing.widthSmall,

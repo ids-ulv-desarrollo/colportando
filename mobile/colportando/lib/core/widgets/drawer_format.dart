@@ -17,6 +17,8 @@ class DrawerItem {
 class DrawerFormat extends StatelessWidget {
   // Logo o foto de perfil que se ubica en la cabecera.
   final Widget? logo;
+  // Callback al presionar el logo/avatar de perfil.
+  final VoidCallback? onProfileTap;
   // Listado de opciones del Drawer.
   final List<DrawerItem> items;
   // Callback opcional si se requiere manejar la acción por índice.
@@ -27,6 +29,7 @@ class DrawerFormat extends StatelessWidget {
   const DrawerFormat({
     super.key,
     this.logo,
+    this.onProfileTap,
     required this.items,
     this.onPressed,
     this.selectedIndex,
@@ -38,7 +41,7 @@ class DrawerFormat extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            logo ?? _LogoFormart(),
+            logo ?? _LogoFormart(onTap: onProfileTap),
             const Divider(),
             Expanded(
               child: ListView.separated(
@@ -54,9 +57,8 @@ class DrawerFormat extends StatelessWidget {
                       borderRadius: AppSpacing.borderSmall,
                     ),
                     selected: isSelected,
-                    selectedTileColor: Theme.of(
-                      context,
-                    ).colorScheme.surface.withOpacity(0.5),
+                    selectedTileColor: context.colorScheme.surface,
+                    selectedColor: context.colorScheme.onSurface,
                     leading: item.icon,
                     title: TextFormat.body(item.label),
                     onTap: () {
@@ -76,15 +78,27 @@ class DrawerFormat extends StatelessWidget {
 }
 
 class _LogoFormart extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _LogoFormart({this.onTap});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: AppSpacing.paddingMedium,
       child: Center(
-        child: CircleAvatar(
-          radius: 36,
-          backgroundColor: context.colorScheme.surface,
-          child: AppIcon.person,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(36),
+          onTap: () {
+            Scaffold.maybeOf(context)?.closeDrawer();
+            onTap?.call();
+          },
+          child: CircleAvatar(
+            radius: 36,
+            backgroundColor: context.colorScheme.surface,
+            foregroundColor: context.colorScheme.onSurface,
+            child: AppIcon.person,
+          ),
         ),
       ),
     );

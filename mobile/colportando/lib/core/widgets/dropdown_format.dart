@@ -28,7 +28,7 @@ class DropdownFormat<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<T>(
-      dropdownColor: Theme.of(context).popupMenuTheme.color,
+      dropdownColor: context.theme.popupMenuTheme.color,
       isDense: true,
       borderRadius: AppSpacing.borderSmall,
       value: value,

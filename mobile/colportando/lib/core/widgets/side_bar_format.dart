@@ -1,4 +1,5 @@
 import 'package:colportando/core/theme/app_color.dart';
+import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/theme/app_text.dart';
 import 'package:colportando/core/widgets/bottom_bar_format.dart';
 import 'package:flutter/material.dart';
@@ -20,21 +21,20 @@ class SideBarFormat extends StatelessWidget {
   Widget build(BuildContext context) {
     return NavigationRail(
       backgroundColor: AppColor.secondary,
-      selectedIndex: selectedIndex,
+      selectedIndex: selectedIndex >= 0 && selectedIndex < items.length
+          ? selectedIndex
+          : null,
       onDestinationSelected: onPressed,
       labelType: NavigationRailLabelType.all,
-      indicatorColor: Colors.transparent,
-      selectedLabelTextStyle: AppText.labelWhite,
-      unselectedLabelTextStyle: AppText.labelWhite.copyWith(
-        color: AppColor.gray,
+      indicatorColor: AppColor.backgroundDark.withOpacity(0.3),
+      indicatorShape: const RoundedRectangleBorder(
+        borderRadius: AppSpacing.borderMedium,
       ),
+      selectedLabelTextStyle: AppText.label.copyWith(color: AppColor.white),
+      unselectedLabelTextStyle: AppText.label,
       destinations: [
         for (final item in items)
-          NavigationRailDestination(
-            icon: item.icon,
-            selectedIcon: item.selectedIcon ?? item.icon,
-            label: Text(item.label),
-          ),
+          NavigationRailDestination(icon: item.icon, label: Text(item.label)),
       ],
     );
   }
