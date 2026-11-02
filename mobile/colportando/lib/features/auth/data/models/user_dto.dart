@@ -1,36 +1,39 @@
 import 'package:colportando/features/auth/domain/entities/user.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 
-class UserDto extends User {
-  const UserDto({
-    required super.id,
-    required super.name,
-    required super.email,
-    super.role,
-    super.status,
-    super.token,
-    required super.createdAt,
-    super.deletedAt,
-  });
+part 'user_dto.freezed.dart';
+part 'user_dto.g.dart';
 
-  // Convierte el formato json en objetos de Dart, y los convierte en entidades (clases).
-  factory UserDto.fromJson(Map<String, dynamic> json) => UserDto(
-    id: json["id"].toString(),
-    name: json["name"].toString(),
-    email: json["email"].toString(),
-    role: json["role"]?.toString(),
-    status: json["status"]?.toString(),
-    token: json["token"]?.toString(),
-    createdAt: json["created_at"] != null
-        ? DateTime.parse(json["created_at"].toString())
-        : DateTime.now(),
-    deletedAt: json["deleted_at"] == null
-        ? null
-        : DateTime.parse(json["deleted_at"].toString()),
+@freezed
+abstract class UserDto with _$UserDto {
+  // Constructor privado necesario para poder agregar métodos propios (toEntity).
+  const UserDto._();
+
+  const factory UserDto({
+    required String id,
+    required String name,
+    required String email,
+    String? role,
+    String? status,
+    String? token,
+    // Con @JsonKey se le indica al formateador de json que el nombre de la propiedad en el json es "created_at", pero en Dart es "createdAt".
+    @JsonKey(name: "created_at") required DateTime createdAt,
+    @JsonKey(name: "deleted_at") DateTime? deletedAt,
+  }) = _UserDto;
+
+  // Se conecta la generación automática de fromJson y toJson.
+  factory UserDto.fromJson(Map<String, dynamic> json) =>
+      _$UserDtoFromJson(json);
+
+  // Convierte el DTO en la entidad pura del dominio.
+  User toEntity() => User(
+    id: id,
+    name: name,
+    email: email,
+    role: role,
+    status: status,
+    token: token,
+    createdAt: createdAt,
+    deletedAt: deletedAt,
   );
 }
-
-// Esto devuelve en formato json, lo que significa que se puede enviar al backend para guardarlo (hasta que se sincronice mediante el internet).
-// User toEntity({taskSyncStatus status = taskSyncStatus.synced})
-//     {
-      
-//     }
