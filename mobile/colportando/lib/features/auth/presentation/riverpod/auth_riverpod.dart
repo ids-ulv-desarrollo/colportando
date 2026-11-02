@@ -1,34 +1,19 @@
-import 'package:colportando/features/auth/presentation/riverpod/auth_di.dart';
 import 'package:colportando/features/auth/domain/entities/user.dart';
+import 'package:colportando/features/auth/presentation/riverpod/auth_di.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
+
+part 'auth_riverpod.freezed.dart';
 
 // Estado inmutable de la pantalla de autenticación.
-class AuthState {
-  final bool isLoading;
-  final String? errorMessage;
-  final bool isAuthenticated;
-  final User? user;
-
-  const AuthState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.isAuthenticated = false,
-    this.user,
-  });
-
-  AuthState copyWith({
-    bool? isLoading,
+@freezed
+abstract class AuthState with _$AuthState {
+  const factory AuthState({
+    @Default(false) bool isLoading,
     String? errorMessage,
-    bool? isAuthenticated,
+    @Default(false) bool isAuthenticated,
     User? user,
-  }) {
-    return AuthState(
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage,
-      isAuthenticated: isAuthenticated ?? this.isAuthenticated,
-      user: user ?? this.user,
-    );
-  }
+  }) = _AuthState;
 }
 
 // Notificador que gestiona el estado y las acciones del usuario.

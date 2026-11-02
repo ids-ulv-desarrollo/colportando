@@ -1,3 +1,4 @@
+import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class IconFormat extends StatelessWidget {
       decoration: BoxDecoration(
         color:
             color?.withOpacity(0.1) ??
-            Theme.of(context).iconTheme.color?.withOpacity(0.05),
+            context.iconTheme.color?.withOpacity(0.05),
         borderRadius: AppSpacing.borderSmall,
       ),
       child: icon,

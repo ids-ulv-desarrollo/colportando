@@ -1,3 +1,4 @@
+import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:colportando/core/router/global_route.dart';
 import 'package:colportando/core/theme/app_color.dart';
 import 'package:colportando/core/theme/app_icon.dart';
@@ -34,7 +35,7 @@ class BadgeFormat extends StatelessWidget {
                   color: AppColor.error,
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Theme.of(context).colorScheme.secondary,
+                    color: context.colorScheme.secondary,
                     width: 2,
                   ),
                 ),

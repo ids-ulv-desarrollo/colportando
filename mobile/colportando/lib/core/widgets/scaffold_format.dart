@@ -1,11 +1,16 @@
+import 'package:colportando/core/theme/app_breakpoint.dart';
+import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_safe.dart';
+import 'package:colportando/core/theme/app_spacing.dart';
+import 'package:colportando/core/widgets/button_format.dart';
+import 'package:colportando/core/widgets/responsive_grid.dart';
 import 'package:flutter/material.dart';
 
 // Scaffold base y reutilizable para cualquier pantalla de la app.
 class ScaffoldFormat extends StatelessWidget {
   final List<Widget> children;
   final String? titleAppBar;
-  final Widget? drawer;
+  final Widget? leading;
   // Llave global para el formulario.
   final GlobalKey<FormState>? formKey;
   final List<Widget>? actions;
@@ -13,46 +18,88 @@ class ScaffoldFormat extends StatelessWidget {
   final FloatingActionButtonLocation? floatingActionButtonLocation;
   final Widget? bottomNavigationBar;
   final Future<void> Function()? onRefresh;
-  final bool isScrollable;
   final bool extendBody;
+  // Activa la cuadrícula responsiva (ResponsiveGrid) para distribuir los elementos.
+  final bool isResponsive;
+  final bool isLoading;
+  final Widget? skeletonItem;
+  final int? skeletonCount;
+  final MainAxisAlignment? mainAxisAlignment;
 
   const ScaffoldFormat({
     super.key,
     this.children = const [],
     this.titleAppBar,
-    this.drawer,
+    this.leading,
     this.formKey,
     this.actions,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
     this.bottomNavigationBar,
     this.onRefresh,
-    this.isScrollable = true,
     this.extendBody = false,
+    this.isResponsive = false,
+    this.isLoading = false,
+    this.skeletonItem,
+    this.skeletonCount,
+    this.mainAxisAlignment,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Con scroll se usa AppSafe; sin scroll (PageView) cada página aplica su propio AppSafe, ya que si se le aplica scroll no dejará refrescar, sino que aplicará directamente el scroll.
-    final Widget content = isScrollable
-        ? AppSafe(
-            onRefresh: onRefresh,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
-            ),
+    // Determina el contenido principal según si es cuadrícula responsiva o lista vertical estándar.
+    final Widget mainContent = (isResponsive && children.isNotEmpty)
+        ? ResponsiveGrid(
+            items: children,
+            isLoading: isLoading,
+            skeletonItem: skeletonItem,
+            skeletonCount: skeletonCount,
           )
-        : SafeArea(
-            child: children.isNotEmpty
-                ? children.first
-                : const SizedBox.shrink(),
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: mainAxisAlignment ?? MainAxisAlignment.start,
+            children: children,
           );
 
+    // Ancho máximo: expande a desktopMaxWidth en escritorio o vista responsiva.
+    final double effectiveMaxWidth =
+        (AppBreakpoint.isDesktop(context) || isResponsive)
+        ? AppBreakpoint.desktopMaxWidth
+        : AppBreakpoint.contentMaxWidth;
+
+    // Aplica SafeArea, padding estándar y scroll mediante AppSafe.
+    final Widget content = AppSafe(
+      onRefresh: onRefresh,
+      maxWidth: effectiveMaxWidth,
+      child: mainContent,
+    );
+
+    // Muestra el botón de menú si el Scaffold padre (ej. MainNavigationScreen) tiene Drawer.
+    final hasAncestorDrawer = Scaffold.maybeOf(context)?.hasDrawer ?? false;
+    final effectiveLeading =
+        leading ??
+        (hasAncestorDrawer
+            ? Padding(
+                padding: AppSpacing.paddingSmall,
+                child: ButtonFormat.icon(
+                  icon: AppIcon.menu,
+                  onPressed: () => Scaffold.of(context).openDrawer(),
+                ),
+              )
+            : null);
+
+    final hasAppBar =
+        titleAppBar != null || effectiveLeading != null || actions != null;
+
     return Scaffold(
-      appBar: titleAppBar != null
-          ? AppBar(title: Text(titleAppBar!), actions: actions)
+      appBar: hasAppBar
+          ? AppBar(
+              backgroundColor: titleAppBar == null ? Colors.transparent : null,
+              title: titleAppBar != null ? Text(titleAppBar!) : null,
+              actions: actions,
+              leading: effectiveLeading,
+            )
           : null,
-      drawer: drawer,
       body: formKey != null ? Form(key: formKey, child: content) : content,
       floatingActionButton: floatingActionButton,
       floatingActionButtonLocation: floatingActionButtonLocation,

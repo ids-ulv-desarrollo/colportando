@@ -10,7 +10,7 @@ class SignupScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: .center,
           children: [
             ElevatedButton(
               onPressed: () {

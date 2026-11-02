@@ -214,6 +214,10 @@ class GlobalTheme {
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderSmall),
     ),
+    // Checkbox
+    checkboxTheme: CheckboxThemeData(
+      checkColor: WidgetStateProperty.all(AppColor.white),
+    ),
     // Menú lateral (Drawer).
     drawerTheme: const DrawerThemeData(backgroundColor: AppColor.background),
     // Hoja inferior emergente (Bottom Sheet).
@@ -265,7 +269,7 @@ class GlobalTheme {
       titleSmall: AppText.subtitleWhite,
       bodyLarge: AppText.bodyWhite,
       bodyMedium: AppText.bodySecondaryDark,
-      labelMedium: AppText.labelWhite,
+      labelMedium: AppText.labelDark,
     ),
 
     colorScheme: const ColorScheme.dark(
@@ -373,7 +377,7 @@ class GlobalTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        textStyle: AppText.bodySecondary,
+        textStyle: AppText.bodySecondaryDark,
         foregroundColor: AppColor.white,
         disabledForegroundColor: AppColor.grayDark,
         side: BorderSide(
@@ -469,6 +473,10 @@ class GlobalTheme {
       color: AppColor.backgroundDark,
       elevation: 4,
       shape: RoundedRectangleBorder(borderRadius: AppSpacing.borderSmall),
+    ),
+    // Checkbox
+    checkboxTheme: CheckboxThemeData(
+      checkColor: WidgetStateProperty.all(AppColor.white),
     ),
     // Menú lateral (Drawer).
     drawerTheme: const DrawerThemeData(

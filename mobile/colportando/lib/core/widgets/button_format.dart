@@ -1,26 +1,38 @@
 import 'package:colportando/core/constants/strings_constants.dart';
 import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
+import 'package:colportando/core/widgets/circular_loading.dart';
 import 'package:colportando/core/widgets/text_format.dart';
 import 'package:flutter/material.dart';
 
 class ButtonFormat {
-  // Botón principal de acción (ElevatedButton).
+  // Botón principal.
   static Widget primary({
+    Widget? icon,
     required String label,
     required VoidCallback onPressed,
     GlobalKey<FormState>? formKey,
     bool isLoading = false,
   }) {
-    return ElevatedButton(
+    return ElevatedButton.icon(
+      icon: isLoading ? const SizedBox.shrink() : icon,
       onPressed: isLoading ? null : () => _formValidate(formKey, onPressed),
-      child: isLoading
-          ? const SizedBox(
-              width: 24,
-              height: 24,
-              child: CircularProgressIndicator(),
-            )
-          : TextFormat.bodyWhite(label),
+      label: isLoading ? const CircularLoading() : TextFormat.bodyWhite(label),
+    );
+  }
+
+  // Botón secundario.
+  static Widget secondary({
+    Widget? icon,
+    required String label,
+    required VoidCallback onPressed,
+    GlobalKey<FormState>? formKey,
+    bool isLoading = false,
+  }) {
+    return OutlinedButton.icon(
+      icon: isLoading ? const SizedBox.shrink() : icon,
+      onPressed: isLoading ? null : () => _formValidate(formKey, onPressed),
+      label: isLoading ? const CircularLoading() : TextFormat.body(label),
     );
   }
 
@@ -34,14 +46,12 @@ class ButtonFormat {
     return Builder(
       builder: (context) {
         return TextButton(
-          style: TextButton.styleFrom(minimumSize: const Size(double.infinity, 45)),
+          style: TextButton.styleFrom(
+            minimumSize: const Size(double.infinity, 45),
+          ),
           onPressed: isLoading ? null : () => _formValidate(formKey, onPressed),
           child: isLoading
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(),
-                )
+              ? const CircularLoading()
               : TextFormat.subtitle(label),
         );
       },
@@ -77,7 +87,7 @@ class ButtonFormat {
   }) {
     return Builder(
       builder: (context) => Row(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: .center,
         children: [
           Expanded(
             child: SizedBox(
@@ -109,11 +119,7 @@ class ButtonFormat {
                   elevation: 0,
                 ),
                 child: isLoading
-                    ? const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CircularProgressIndicator(),
-                      )
+                    ? const CircularLoading()
                     : FittedBox(
                         fit: BoxFit.scaleDown,
                         child: TextFormat.bodyWhite(StringsConstants.confirm),

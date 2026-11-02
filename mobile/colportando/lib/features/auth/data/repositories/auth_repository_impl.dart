@@ -12,7 +12,14 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<Result<User>> signin({
     required String email,
     required String password,
-  }) => remoteDataSource.signin(email: email, password: password);
+  }) async {
+    final result = await remoteDataSource.signin(
+      email: email,
+      password: password,
+    );
+    // El DTO ya no hereda de User, por lo que se debe convertir a entidad.
+    return result.map((dto) => dto.toEntity());
+  }
 
   @override
   Future<Result<void>> signup({

@@ -4,12 +4,14 @@ import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/utils/global_validator.dart';
 import 'package:colportando/core/widgets/badge_format.dart';
 import 'package:colportando/core/widgets/bottom_sheet_format.dart';
+import 'package:colportando/core/widgets/file_upload_format.dart';
+import 'package:colportando/core/widgets/quantity_selector_format.dart';
 import 'package:colportando/core/widgets/button_format.dart';
+import 'package:colportando/core/widgets/checkbox_format.dart';
 import 'package:colportando/core/widgets/container_format.dart';
 import 'package:colportando/core/widgets/container_list_tile_format.dart';
 import 'package:colportando/core/widgets/date_picker_format.dart';
 import 'package:colportando/core/widgets/dialog_format.dart';
-import 'package:colportando/core/widgets/drawer_format.dart';
 import 'package:colportando/core/widgets/dropdown_format.dart';
 import 'package:colportando/core/widgets/filter_chip_format.dart';
 import 'package:colportando/core/widgets/input_text_formart.dart';
@@ -57,6 +59,8 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
   String _selectedStatusFilter = "Todos";
   String _searchQuery = "";
   bool _isLoading = false;
+  int _quantity = 1;
+  String? _uploadedFileName;
 
   // Datos de prueba limpios y directos
   final List<_MockUser> _allUsers = const [
@@ -132,41 +136,6 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
     return ScaffoldFormat(
       titleAppBar: "Prueba de Widgets",
       formKey: _formKey,
-      drawer: DrawerFormat(
-        items: [
-          DrawerItem(
-            icon: AppIcon.person,
-            label: "Mi Participación",
-            onPressed: () => SnackBarFormat().show(context, "Mi Participación"),
-          ),
-          DrawerItem(
-            icon: AppIcon.depositos,
-            label: "Depósitos",
-            onPressed: () => SnackBarFormat().show(context, "Depósitos"),
-          ),
-          DrawerItem(
-            icon: AppIcon.capacitaciones,
-            label: "Capacitaciones",
-            onPressed: () => SnackBarFormat().show(context, "Capacitaciones"),
-          ),
-          DrawerItem(
-            icon: AppIcon.apelaciones,
-            label: "Apelaciones",
-            onPressed: () => SnackBarFormat().show(context, "Apelaciones"),
-          ),
-          DrawerItem(
-            icon: AppIcon.logoutOutlined,
-            label: "Iniciar sesión",
-            onPressed: () => Navigator.pushNamed(context, GlobalRoute.signin),
-          ),
-          DrawerItem(
-            icon: AppIcon.notifications,
-            label: "Notificaciones",
-            onPressed: () =>
-                Navigator.pushNamed(context, GlobalRoute.notifications),
-          ),
-        ],
-      ),
       onRefresh: () async {
         setState(() => _isLoading = true);
         await Future.delayed(const Duration(milliseconds: 1500));
@@ -189,22 +158,25 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
         MenuButtonFormat(
           items: [
             MenuItemModel(
-              value: "ajustes",
+              value: "settings",
               icon: AppIcon.edit,
               text: "Ajustes",
             ),
             MenuItemModel(
-              value: "salir",
+              value: "signin",
               icon: AppIcon.logoutOutlined,
-              text: "Cerrar sesión",
+              text: "Iniciar sesión",
             ),
             MenuItemModel(
-              value: "cancelar",
+              value: "cancel",
               icon: AppIcon.cancel,
               text: "Cancelar",
             ),
           ],
           onSelected: (value) {
+            if (value == "signin") {
+              Navigator.pushNamed(context, GlobalRoute.signin);
+            }
             SnackBarFormat().show(context, "Opción seleccionada: $value");
           },
         ),
@@ -316,6 +288,27 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
                   ),
                 ),
                 AppSpacing.heightMedium,
+                QuantitySelectorFormat(
+                  value: _quantity,
+                  onChanged: (val) => setState(() => _quantity = val),
+                ),
+                AppSpacing.heightMedium,
+                FileUploadFormat(
+                  label: "Subir comprobante o documento",
+                  fileName: _uploadedFileName,
+                  onFileSelected: (path) {
+                    final name = path.split(RegExp(r'[\\/]')).last;
+                    setState(() => _uploadedFileName = name);
+                    SnackBarFormat().show(context, "Archivo: $name");
+                  },
+                  onRemove: () => setState(() => _uploadedFileName = null),
+                ),
+                AppSpacing.heightMedium,
+                ButtonFormat.secondary(
+                  label: "Botón secundario",
+                  onPressed: () {},
+                ),
+                AppSpacing.heightMedium,
                 ButtonFormat.text(
                   label: "Abrir BottomSheet",
                   onPressed: () {
@@ -373,6 +366,9 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
                           label: "Abrir Diálogo",
                           onPressed: _handleShowDialog,
                         ),
+                        const CheckboxFormat(
+                          text: "Acepto términos y condiciones",
+                        ),
                       ],
                     ).show(context);
                   },
@@ -427,23 +423,24 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
               itemBuilder: (context, index) {
                 final user = filteredList[index];
                 return ContainerListTile(
-                  onTap: () => SnackBarFormat().show(
-                    context,
-                    "Solo usar con el ícono arrowRight",
-                  ),
                   icon: AppIcon.person,
                   title: user.name,
-                  subtitle: "${user.category} • ${user.status}",
-
-                  trailing: MenuButtonFormat(
-                    items: [
-                      MenuItemModel(value: "ver", text: "Ver detalle"),
-                      MenuItemModel(value: "editar", text: "Editar"),
-                    ],
-                    onSelected: (val) {
-                      SnackBarFormat().show(context, "$val: ${user.name}");
-                    },
-                  ),
+                  subtitle: "Rol: ${user.category}",
+                  subsubtitle: "Estado: ${user.status}",
+                  expandedChild: [
+                    AppSpacing.heightSmall,
+                    TextFormat.bodySecondary(
+                      "Detalles: ${user.name} se encuentra ${user.status.toLowerCase()}.",
+                    ),
+                    AppSpacing.heightSmall,
+                    ButtonFormat.text(
+                      label: "Ver detalle",
+                      onPressed: () => SnackBarFormat().show(
+                        context,
+                        "Detalle: ${user.name}",
+                      ),
+                    ),
+                  ],
                 );
               },
             ),

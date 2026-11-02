@@ -76,10 +76,19 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
         ),
         AppSpacing.heightMedium,
         ButtonFormat.primary(
+          icon: AppIcon.doneAll,
           label: "Iniciar Sesión",
           formKey: _formKey,
           isLoading: authState.isLoading,
           onPressed: _handleSignin,
+        ),
+        AppSpacing.heightMedium,
+        Row(
+          mainAxisAlignment: .spaceEvenly,
+          children: [
+            ButtonFormat.icon(icon: AppIcon.google, onPressed: _handleSignin),
+            ButtonFormat.icon(icon: AppIcon.ios, onPressed: _handleSignin),
+          ],
         ),
       ],
     );
