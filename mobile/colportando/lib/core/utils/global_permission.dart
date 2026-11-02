@@ -1,28 +1,49 @@
-// Se define las acciones protegidas de la app.
+// Acciones operativas protegidas por rol dentro de la app móvil.
 enum Permission {
-  // Aquí se definirá las acciones que están protegidas por permisos, las que puedan hacer todos no (signin, signup, etc). Ejemplo:
-  editUser,
+  manageCampaigns,
+  validateDeposits,
+  manageParticipants,
+  manageGroups,
+  reviewAcquisitions,
+  requestAcquisitions,
+  registerSales,
+  uploadDeposits,
+  viewCredits,
+  viewTrainings,
 }
 
-// Se define los permisos que tiene cada rol.
+// Matriz de permisos por rol (directiva, asociado, colportor).
 class RolePermissions {
   RolePermissions._();
 
   static const Map<String, Set<Permission>> actions = {
-    "asociado": {
-      //Permission.
+    "directiva": {
+      Permission.manageCampaigns,
+      Permission.validateDeposits,
+      Permission.manageParticipants,
+      Permission.manageGroups,
+      Permission.reviewAcquisitions,
+      Permission.viewTrainings,
     },
-    "colportor": {},
-    "administrador": {},
+    "asociado": {
+      Permission.manageParticipants,
+      Permission.reviewAcquisitions,
+      Permission.uploadDeposits,
+      Permission.viewCredits,
+      Permission.viewTrainings,
+    },
+    "colportor": {
+      Permission.requestAcquisitions,
+      Permission.registerSales,
+      Permission.uploadDeposits,
+      Permission.viewCredits,
+      Permission.viewTrainings,
+    },
   };
 
-  // Consulta si un rol tiene un permiso específico.
+  // Consulta si el rol activo cuenta con un permiso específico.
   static bool has(String? role, Permission permission) {
     if (role == null) return false;
     return actions[role]?.contains(permission) ?? false;
   }
 }
-
-// Ejemplo de uso:
-// final role = ref.watch(authProvider).user?.role;
-// final canEdit = RolePermissions.has(role, Permission.editUser);

@@ -8,4 +8,8 @@ class Result<T> {
 
   bool get isSuccess => error == null;
   bool get isFailure => error != null;
+
+  // Transforma el dato si fue exitoso (ej. DTO a entidad); si falló, conserva el error.
+  Result<R> map<R>(R Function(T data) transform) =>
+      isSuccess ? Result.success(transform(data as T)) : Result.failure(error);
 }
