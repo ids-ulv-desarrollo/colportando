@@ -1,7 +1,5 @@
 import 'package:colportando/core/router/imports.dart';
 import 'package:colportando/core/screens/main_navigation_screen.dart';
-import 'package:colportando/core/theme/app_icon.dart';
-import 'package:colportando/core/widgets/bottom_bar_format.dart';
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/signin_screen.dart';
 import 'package:colportando/features/notifications/presentation/screens/notification_screen.dart';
@@ -23,33 +21,16 @@ class GlobalRoute {
   // Navegación principal
   static const String mainNavigation = "/main_navigation";
 
-  // Profile
+  // Perfil
   static const String profile = "/profile";
 
+  // Pruebas
   static const String pruebaWidgets = "/prueba_widgets";
 
   static Map<String, WidgetBuilder> routes = {
-    // initial: (context) => const StartScreen(),
     signup: (context) => const SignupScreen(),
     signin: (context) => const SigninScreen(),
-    // resetPassword: (context) => const ResetPasswordScreen(),
-    // forgotPassword: (context) => const ForgotPasswordScreen(),
-    // confirmation: (context) => const ConfirmationScreen(),
-    mainNavigation: (context) => const MainNavigationScreen(
-      items: [
-        BottomBarItem(
-          icon: AppIcon.homeInactive,
-          selectedIcon: AppIcon.homeSelected,
-          label: "Inicio",
-        ),
-        BottomBarItem(
-          icon: AppIcon.personInactive,
-          selectedIcon: AppIcon.personSelected,
-          label: "Perfil",
-        ),
-      ],
-      screens: [PruebaWidgets(), ProfileScreen()],
-    ),
+    mainNavigation: (context) => const MainNavigationScreen(),
     profile: (context) => const ProfileScreen(),
     notifications: (context) => const NotificationScreen(),
     pruebaWidgets: (context) => const PruebaWidgets(),
