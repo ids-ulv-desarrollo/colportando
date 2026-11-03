@@ -12,11 +12,11 @@ class WaitingRoleScreen extends StatelessWidget {
     return ScaffoldFormat(
       mainAxisAlignment: .center,
       children: [
-        TextFormat.title("Bienvenido a Colportando", alignCenter: true),
+        TextFormat.title("Bienvenido a Colportando", textAlign: .center),
         AppSpacing.heightSmall,
         TextFormat.body(
           "Espera a que el administrador te asigne tu rol.",
-          alignCenter: true,
+          textAlign: TextAlign.center,
         ),
       ],
     );
