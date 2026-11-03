@@ -86,7 +86,7 @@ class FileUploadFormat extends StatelessWidget {
         Row(
           children: [
             hasFile ? AppIcon.file : AppIcon.upload,
-            AppSpacing.widthSmall,
+            AppSpacing.widthMedium,
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

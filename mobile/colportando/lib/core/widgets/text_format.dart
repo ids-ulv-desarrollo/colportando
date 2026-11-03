@@ -3,73 +3,73 @@ import 'package:colportando/core/theme/app_text.dart';
 import 'package:flutter/material.dart';
 
 class TextFormat {
-  static Widget title(String text, {bool? alignCenter}) {
+  static Widget title(String text, {TextAlign? textAlign}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: context.textTheme.titleMedium,
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget subtitle(String text, {bool? alignCenter}) {
+  static Widget subtitle(String text, {TextAlign? textAlign}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: context.textTheme.titleSmall,
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget body(String text, {bool? alignCenter}) {
+  static Widget body(String text, {TextAlign? textAlign}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: context.textTheme.bodyLarge,
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget bodyWhite(String text, {bool? alignCenter}) {
+  static Widget bodyWhite(String text, {TextAlign? textAlign}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: AppText.bodyWhite,
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget bodySecondary(String text, {bool? alignCenter}) {
+  static Widget bodySecondary(String text, {TextAlign? textAlign}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: context.textTheme.bodyMedium,
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget label(String text, {bool? alignCenter, Color? color}) {
+  static Widget label(String text, {TextAlign? textAlign, Color? color}) {
     return Builder(
       builder: (context) {
         return Text(
           text,
           style: context.textTheme.labelMedium?.copyWith(color: color),
-          textAlign: alignCenter == true ? TextAlign.center : null,
+          textAlign: textAlign ?? .start,
         );
       },
     );

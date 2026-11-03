@@ -36,7 +36,11 @@ class ContainerFormat extends StatelessWidget {
         onTap: onPressed,
         child: Padding(
           padding: AppSpacing.paddingSmall,
-          child: Column(mainAxisSize: MainAxisSize.min, children: children),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: .stretch,
+            children: children,
+          ),
         ),
       ),
     );
