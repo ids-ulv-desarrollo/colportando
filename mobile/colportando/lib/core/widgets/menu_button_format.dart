@@ -50,7 +50,7 @@ class MenuButtonFormat extends StatelessWidget {
                       data: IconThemeData(color: context.colorScheme.onSurface),
                       child: item.icon!,
                     ),
-                    AppSpacing.widthSmall,
+                    AppSpacing.widthMedium,
                   ],
                   TextFormat.body(item.text),
                 ],

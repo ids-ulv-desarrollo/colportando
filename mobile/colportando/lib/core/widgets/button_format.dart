@@ -105,7 +105,7 @@ class ButtonFormat {
               ),
             ),
           ),
-          AppSpacing.widthSmall,
+          AppSpacing.widthMedium,
           Expanded(
             child: SizedBox(
               height: 35,

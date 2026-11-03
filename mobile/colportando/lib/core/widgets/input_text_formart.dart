@@ -64,7 +64,7 @@ class _InputTextFormartState extends State<InputTextFormart> {
         ...?widget.inputFormatters,
       ],
       // Centra el texto si no tiene ícono.
-      textAlign: widget.maxLength == 1 ? TextAlign.center : TextAlign.start,
+      textAlign: widget.maxLength == 1 ? .center : .start,
 
       validator: widget.validator,
       // AutovalidateMode para que valide mientras se escribe.

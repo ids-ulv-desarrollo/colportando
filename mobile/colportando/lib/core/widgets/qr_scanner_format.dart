@@ -63,7 +63,7 @@ class QrScannerFormat extends StatelessWidget {
               color: context.colorScheme.surface.withValues(alpha: 0.9),
               borderRadius: AppSpacing.borderSmall,
             ),
-            child: TextFormat.bodySecondary(label, alignCenter: true),
+            child: TextFormat.bodySecondary(label, textAlign: .center),
           ),
         ),
       ],
