@@ -3,72 +3,121 @@ import 'package:colportando/core/theme/app_text.dart';
 import 'package:flutter/material.dart';
 
 class TextFormat {
-  static Widget title(String text, {TextAlign? textAlign}) {
+  static Widget title(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight? fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: context.textTheme.titleMedium,
+          style: context.textTheme.titleMedium?.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget subtitle(String text, {TextAlign? textAlign}) {
+  static Widget subtitle(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight? fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: context.textTheme.titleSmall,
+          style: context.textTheme.titleSmall?.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget body(String text, {TextAlign? textAlign}) {
+  static Widget body(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight,
+    fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: context.textTheme.bodyLarge,
+          style: context.textTheme.bodyLarge?.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget bodyWhite(String text, {TextAlign? textAlign}) {
+  static Widget bodyWhite(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight? fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: AppText.bodyWhite,
+          style: AppText.bodyWhite.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget bodySecondary(String text, {TextAlign? textAlign}) {
+  static Widget bodySecondary(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight? fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: context.textTheme.bodyMedium,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
     );
   }
 
-  static Widget label(String text, {TextAlign? textAlign, Color? color}) {
+  static Widget label(
+    String text, {
+    TextAlign? textAlign,
+    Color? color,
+    FontWeight? fontWeight,
+  }) {
     return Builder(
       builder: (context) {
         return Text(
           text,
-          style: context.textTheme.labelMedium?.copyWith(color: color),
+          style: context.textTheme.labelMedium?.copyWith(
+            color: color,
+            fontWeight: fontWeight,
+          ),
           textAlign: textAlign ?? .start,
         );
       },
