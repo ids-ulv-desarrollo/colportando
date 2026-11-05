@@ -26,7 +26,14 @@ class DetailCampignScreen extends StatelessWidget {
         ButtonFormat.icon(
           icon: AppIcon.delete,
           onPressed: () {
-            Navigator.pushNamed(context, GlobalRoute.editCampign);
+            DialogFormat(
+              title: 'Eliminar campaña',
+              content: TextFormat.body("Confirma la eliminación de la campaña"),
+              onPressed: () {
+                SnackBarFormat().show(context, "Campaa eliminada");
+                Navigator.pop(context);
+              },
+            ).show(context);
           },
         ),
       ],

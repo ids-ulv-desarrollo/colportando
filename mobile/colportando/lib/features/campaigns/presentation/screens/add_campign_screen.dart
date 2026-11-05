@@ -122,7 +122,7 @@ class _AddCampignScreenState extends State<AddCampignScreen> {
               title: 'Confirmar campaña',
               content: TextFormat.body("Confirma la creación de la campaña"),
               onPressed: () {
-                SnackBarFormat().show(context, "Confirmado");
+                SnackBarFormat().show(context, "Campaña creada");
                 Navigator.pop(context);
               },
             ).show(context);
