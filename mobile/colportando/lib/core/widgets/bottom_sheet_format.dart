@@ -4,14 +4,18 @@ import 'package:flutter/material.dart';
 
 // Widget base y reutilizable para hojas modales inferiores (Bottom Sheet).
 class BottomSheetFormat extends StatelessWidget {
-  final String title;
+  final String? title;
+  final Widget? content;
   final List<Widget> children;
 
   const BottomSheetFormat({
     super.key,
     required this.title,
     required this.children,
-  });
+  }) : content = null;
+
+  const BottomSheetFormat.content(this.content, {super.key, this.title})
+    : children = const [];
 
   // Muestra el bottom sheet en pantalla y retorna el resultado al cerrarse.
   Future<T?> show<T>(BuildContext context) {
@@ -35,8 +39,11 @@ class BottomSheetFormat extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            TextFormat.subtitle(title),
-            AppSpacing.heightMedium,
+            if (title != null) ...[
+              TextFormat.subtitle(title!),
+              AppSpacing.heightMedium,
+            ],
+            if (content != null) content!,
             ...children,
           ],
         ),
