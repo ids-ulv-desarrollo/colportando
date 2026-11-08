@@ -42,12 +42,31 @@ class _EditCampignScreenState extends State<EditCampignScreen> {
     return ScaffoldFormat(
       formKey: _formKey,
       titleAppBar: 'Editar Campaña',
+      actions: [
+        ButtonFormat.icon(
+          icon: AppIcon.delete,
+          onPressed: () {
+            DialogFormat(
+              title: "Eiliminar campaña",
+              content: TextFormat.body("Confirma la eliminación de la campaña"),
+              onPressed: () {
+                SnackBarFormat().show(
+                  context,
+                  "Campaña eliminada exitosamente",
+                );
+                Navigator.pop(context);
+              },
+            ).show(context);
+          },
+        ),
+      ],
       children: [
         TextFormat.subtitle("Ingresa los nuevos datos de la campaña"),
         AppSpacing.heightMedium,
         TextFormat.body("Nombre de la campaña"),
         AppSpacing.heightMedium,
         const InputTextFormart(
+          prefixIcon: AppIcon.campana,
           validator: GlobalValidator.validateRequired,
           labelText: "Nombre",
           hintText: "Ingresa un nuevo nombre",
@@ -91,6 +110,7 @@ class _EditCampignScreenState extends State<EditCampignScreen> {
         TextFormat.body("Estado de la campaña"),
         AppSpacing.heightMedium,
         DropdownFormat<String>(
+          prefixIcon: AppIcon.calendar,
           labelText: "Estado",
           hintText: 'Selecciona un estado',
           value: _selectedStatus,
@@ -104,16 +124,21 @@ class _EditCampignScreenState extends State<EditCampignScreen> {
             DropdownMenuItem(value: 'Finalizada', child: Text('Finalizada')),
           ],
         ),
-        TextFormat.bodySecondary("Puedes cerra la campaña"),
+        TextFormat.bodySecondary("Puedes cerrar la campaña"),
         AppSpacing.heightMedium,
         ButtonFormat.dialog(
           formKey: _formKey,
           onConfirm: () {
             DialogFormat(
               title: "¿Estas seguro?",
-              content: TextFormat.body("Confirma la edición de la campaña."),
+              content: TextFormat.body(
+                "Confirma la modificación de la campaña.",
+              ),
               onPressed: () {
-                SnackBarFormat().show(context, "Confirmado");
+                SnackBarFormat().show(
+                  context,
+                  "Campaña modificada exitosamente",
+                );
                 Navigator.pop(context);
               },
             ).show(context);
