@@ -5,13 +5,10 @@ import 'package:colportando/core/widgets/bottom_sheet_format.dart';
 import 'package:colportando/core/widgets/button_format.dart';
 import 'package:colportando/core/widgets/container_format.dart';
 import 'package:colportando/core/widgets/container_list_tile_format.dart';
-import 'package:colportando/core/widgets/dialog_format.dart';
-import 'package:colportando/core/widgets/dropdown_format.dart';
 import 'package:colportando/core/widgets/filter_chip_format.dart';
 import 'package:colportando/core/widgets/input_text_formart.dart';
 import 'package:colportando/core/widgets/list_view_format.dart';
 import 'package:colportando/core/widgets/scaffold_format.dart';
-import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
 import 'package:flutter/material.dart';
 
@@ -34,7 +31,6 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedStateFilter = "Todas";
   String _searchQuery = "";
-  String? _selectedStatus;
 
   final List<_Campaign> _allCampaigns = const [
     _Campaign(name: "Campaña 1", state: "Activa"),
