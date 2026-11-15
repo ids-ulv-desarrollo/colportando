@@ -47,8 +47,7 @@ class TextFormat {
     String text, {
     TextAlign? textAlign,
     Color? color,
-    FontWeight,
-    fontWeight,
+    FontWeight? fontWeight,
   }) {
     return Builder(
       builder: (context) {
