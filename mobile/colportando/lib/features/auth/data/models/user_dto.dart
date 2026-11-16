@@ -10,14 +10,13 @@ abstract class UserDto with _$UserDto {
   const UserDto._();
 
   const factory UserDto({
-    required String id,
-    required String name,
+    @JsonKey(name: "accountId") required String id,
+    @Default('') String name,
     required String email,
     String? role,
     String? status,
     String? token,
-    // Con @JsonKey se le indica al formateador de json que el nombre de la propiedad en el json es "created_at", pero en Dart es "createdAt".
-    @JsonKey(name: "created_at") required DateTime createdAt,
+    @JsonKey(name: "created_at") DateTime? createdAt,
     @JsonKey(name: "deleted_at") DateTime? deletedAt,
   }) = _UserDto;
 

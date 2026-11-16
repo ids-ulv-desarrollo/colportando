@@ -7,9 +7,8 @@ class User extends Equatable {
   final String? role;
   final String? status;
   final String? token;
-  final DateTime createdAt;
+  final DateTime? createdAt;
   final DateTime? deletedAt;
-  // final TaskSyncStatus? syncStatus; // Para evaluar si está sincronizado en BD local
 
   const User({
     required this.id,
@@ -18,7 +17,7 @@ class User extends Equatable {
     this.role,
     this.status,
     this.token,
-    required this.createdAt,
+    this.createdAt,
     this.deletedAt,
   });
 

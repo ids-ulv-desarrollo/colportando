@@ -1,4 +1,5 @@
 import 'package:colportando/core/error/result.dart';
+import 'package:colportando/core/storage/secure_storage.dart';
 import 'package:colportando/features/auth/data/sources/auth_remote_data_source.dart';
 import 'package:colportando/features/auth/domain/entities/user.dart';
 import 'package:colportando/features/auth/domain/repositories/auth_repository.dart';
@@ -9,22 +10,115 @@ class AuthRepositoryImpl implements IAuthRepository {
   const AuthRepositoryImpl({required this.remoteDataSource});
 
   @override
-  Future<Result<User>> signin({
+  Future<Result<User>> login({
     required String email,
     required String password,
   }) async {
-    final result = await remoteDataSource.signin(
+    final sessionResult = await remoteDataSource.login(
       email: email,
       password: password,
     );
-    // El DTO ya no hereda de User, por lo que se debe convertir a entidad.
+    if (sessionResult.isFailure) return Result.failure(sessionResult.error);
+
+    final session = sessionResult.data!;
+    await SecureStorage.saveToken(session['accessToken'] as String);
+    await SecureStorage.saveRefreshToken(session['refreshToken'] as String);
+
+    return getMe();
+  }
+
+  @override
+  Future<Result<void>> refreshSession() async {
+    final refreshToken = await SecureStorage.getRefreshToken();
+    if (refreshToken == null) return const Result.failure('Sin sesión activa.');
+
+    final result = await remoteDataSource.refreshSession(
+      refreshToken: refreshToken,
+    );
+    if (result.isFailure) return Result.failure(result.error);
+
+    final session = result.data!;
+    await SecureStorage.saveToken(session['accessToken'] as String);
+    await SecureStorage.saveRefreshToken(session['refreshToken'] as String);
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<void>> logout() async {
+    final refreshToken = await SecureStorage.getRefreshToken();
+    if (refreshToken != null) {
+      await remoteDataSource.logout(refreshToken: refreshToken);
+    }
+    await SecureStorage.clearSession();
+    return const Result.success(null);
+  }
+
+  @override
+  Future<Result<User>> getMe() async {
+    final result = await remoteDataSource.getMe();
     return result.map((dto) => dto.toEntity());
   }
 
   @override
-  Future<Result<void>> signup({
+  Future<Result<void>> requestEmailVerification({required String email}) =>
+      remoteDataSource.requestEmailVerification(email: email);
+
+  @override
+  Future<Result<void>> confirmEmailVerification({
     required String email,
-    required String name,
+    required String code,
+  }) => remoteDataSource.confirmEmailVerification(email: email, code: code);
+
+  @override
+  Future<Result<void>> requestPasswordReset({required String email}) =>
+      remoteDataSource.requestPasswordReset(email: email);
+
+  @override
+  Future<Result<void>> confirmPasswordReset({
+    required String email,
+    required String code,
+    required String newPassword,
+  }) => remoteDataSource.confirmPasswordReset(
+    email: email,
+    code: code,
+    newPassword: newPassword,
+  );
+
+  @override
+  Future<Result<Map<String, dynamic>>> createInvitation({
+    required String clubId,
+    required String email,
+    String? idempotencyKey,
+  }) => remoteDataSource.createInvitation(
+    clubId: clubId,
+    email: email,
+    idempotencyKey: idempotencyKey,
+  );
+
+  @override
+  Future<Result<Map<String, dynamic>>> inspectInvitation({
+    required String email,
+    required String code,
+  }) => remoteDataSource.inspectInvitation(email: email, code: code);
+
+  @override
+  Future<Result<Map<String, dynamic>>> acceptInvitation({
+    required String email,
+    required String code,
     required String password,
-  }) => remoteDataSource.signup(name: name, email: email, password: password);
+    required String givenNames,
+    required String familyName,
+    String? secondFamilyName,
+    String? phoneE164,
+    String? idempotencyKey,
+  }) => remoteDataSource.acceptInvitation(
+    email: email,
+    code: code,
+    password: password,
+    givenNames: givenNames,
+    familyName: familyName,
+    secondFamilyName: secondFamilyName,
+    phoneE164: phoneE164,
+    idempotencyKey: idempotencyKey,
+  );
 }

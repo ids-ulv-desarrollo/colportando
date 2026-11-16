@@ -30,9 +30,9 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
   }
 
   // Método para manejar el inicio de sesión.
-  void _handleSignin() => ref
+  void _handleLogin() => ref
       .read(authProvider.notifier)
-      .signIn(
+      .login(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -45,8 +45,12 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
         SnackBarFormat().show(context, next.errorMessage!, isError: true);
       }
       if (next.isAuthenticated) {
-        // Navegación al completar la autenticación
-        Navigator.pushNamed(context, GlobalRoute.mainNavigation);
+        // Navegación al completar la autenticación.
+        Navigator.pushNamedAndRemoveUntil(
+          context,
+          GlobalRoute.mainNavigation,
+          (route) => false,
+        );
       }
     });
 
@@ -72,7 +76,6 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           hintText: "••••••••",
           prefixIcon: AppIcon.password,
           maxLength: 50,
-          validator: GlobalValidator.validatePassword,
         ),
         AppSpacing.heightMedium,
         ButtonFormat.primary(
@@ -80,14 +83,14 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           label: "Iniciar Sesión",
           formKey: _formKey,
           isLoading: authState.isLoading,
-          onPressed: _handleSignin,
+          onPressed: _handleLogin,
         ),
         AppSpacing.heightMedium,
         Row(
           mainAxisAlignment: .spaceEvenly,
           children: [
-            ButtonFormat.icon(icon: AppIcon.google, onPressed: _handleSignin),
-            ButtonFormat.icon(icon: AppIcon.ios, onPressed: _handleSignin),
+            ButtonFormat.icon(icon: AppIcon.google, onPressed: _handleLogin),
+            ButtonFormat.icon(icon: AppIcon.ios, onPressed: _handleLogin),
           ],
         ),
       ],

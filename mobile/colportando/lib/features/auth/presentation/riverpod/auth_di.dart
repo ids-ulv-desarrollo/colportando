@@ -5,8 +5,6 @@ import 'package:colportando/features/auth/domain/repositories/auth_repository.da
 import 'package:colportando/features/auth/domain/usecases/auth_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// Inyección de dependencias del módulo de autenticación (API -> RemoteDataSource -> Repository -> Usecase -> Notifier (por Riverpod) -> UI)
-
 // Fuente de datos remota de auth.
 final _authRemoteDataSourceProvider = Provider<IAuthRemoteDataSource>((ref) {
   final apiClient = ref.watch(apiClientProvider);
@@ -19,13 +17,71 @@ final _authRepositoryProvider = Provider<IAuthRepository>((ref) {
   return AuthRepositoryImpl(remoteDataSource: remoteDataSource);
 });
 
-// Ahora sí lo que ese exporta, los UseCases de auth, que son los únicos que se expondrán a la UI.
-final signinUsecaseProvider = Provider<SigninUsecase>((ref) {
-  final repository = ref.watch(_authRepositoryProvider);
-  return SigninUsecase(repository: repository);
+// Casos de uso de auth expuestos para el estado y la UI.
+final loginUsecaseProvider = Provider<LoginUsecase>((ref) {
+  return LoginUsecase(repository: ref.watch(_authRepositoryProvider));
 });
 
-final signupUsecaseProvider = Provider<SignupUsecase>((ref) {
-  final repository = ref.watch(_authRepositoryProvider);
-  return SignupUsecase(repository: repository);
+final refreshSessionUsecaseProvider = Provider<RefreshSessionUsecase>((ref) {
+  return RefreshSessionUsecase(repository: ref.watch(_authRepositoryProvider));
+});
+
+final logoutUsecaseProvider = Provider<LogoutUsecase>((ref) {
+  return LogoutUsecase(repository: ref.watch(_authRepositoryProvider));
+});
+
+final getMeUsecaseProvider = Provider<GetMeUsecase>((ref) {
+  return GetMeUsecase(repository: ref.watch(_authRepositoryProvider));
+});
+
+final requestEmailVerificationUsecaseProvider =
+    Provider<RequestEmailVerificationUsecase>((ref) {
+      return RequestEmailVerificationUsecase(
+        repository: ref.watch(_authRepositoryProvider),
+      );
+    });
+
+final confirmEmailVerificationUsecaseProvider =
+    Provider<ConfirmEmailVerificationUsecase>((ref) {
+      return ConfirmEmailVerificationUsecase(
+        repository: ref.watch(_authRepositoryProvider),
+      );
+    });
+
+final requestPasswordResetUsecaseProvider =
+    Provider<RequestPasswordResetUsecase>((ref) {
+      return RequestPasswordResetUsecase(
+        repository: ref.watch(_authRepositoryProvider),
+      );
+    });
+
+final confirmPasswordResetUsecaseProvider =
+    Provider<ConfirmPasswordResetUsecase>((ref) {
+      return ConfirmPasswordResetUsecase(
+        repository: ref.watch(_authRepositoryProvider),
+      );
+    });
+
+final createInvitationUsecaseProvider = Provider<CreateInvitationUsecase>((
+  ref,
+) {
+  return CreateInvitationUsecase(
+    repository: ref.watch(_authRepositoryProvider),
+  );
+});
+
+final inspectInvitationUsecaseProvider = Provider<InspectInvitationUsecase>((
+  ref,
+) {
+  return InspectInvitationUsecase(
+    repository: ref.watch(_authRepositoryProvider),
+  );
+});
+
+final acceptInvitationUsecaseProvider = Provider<AcceptInvitationUsecase>((
+  ref,
+) {
+  return AcceptInvitationUsecase(
+    repository: ref.watch(_authRepositoryProvider),
+  );
 });
