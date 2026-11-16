@@ -4,8 +4,6 @@ import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/utils/global_validator.dart';
 import 'package:colportando/core/widgets/badge_format.dart';
 import 'package:colportando/core/widgets/bottom_sheet_format.dart';
-import 'package:colportando/core/widgets/file_upload_format.dart';
-import 'package:colportando/core/widgets/quantity_selector_format.dart';
 import 'package:colportando/core/widgets/button_format.dart';
 import 'package:colportando/core/widgets/checkbox_format.dart';
 import 'package:colportando/core/widgets/container_format.dart';
@@ -13,18 +11,22 @@ import 'package:colportando/core/widgets/container_list_tile_format.dart';
 import 'package:colportando/core/widgets/date_picker_format.dart';
 import 'package:colportando/core/widgets/dialog_format.dart';
 import 'package:colportando/core/widgets/dropdown_format.dart';
+import 'package:colportando/core/widgets/file_upload_format.dart';
 import 'package:colportando/core/widgets/filter_chip_format.dart';
 import 'package:colportando/core/widgets/input_text_formart.dart';
 import 'package:colportando/core/widgets/list_view_format.dart';
 import 'package:colportando/core/widgets/menu_button_format.dart';
 import 'package:colportando/core/widgets/qr_generator_format.dart';
 import 'package:colportando/core/widgets/qr_scanner_format.dart';
+import 'package:colportando/core/widgets/quantity_selector_format.dart';
 import 'package:colportando/core/widgets/scaffold_format.dart';
 import 'package:colportando/core/widgets/skeleton_format.dart';
 import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/tab_bar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
+import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Modelo representativo de la estructura de datos de un usuario.
 class _MockUser {
@@ -39,58 +41,92 @@ class _MockUser {
   });
 }
 
-class PruebaWidgets extends StatefulWidget {
+class PruebaWidgets extends ConsumerStatefulWidget {
   const PruebaWidgets({super.key});
 
   @override
-  State<PruebaWidgets> createState() => _PruebaWidgetsState();
+  ConsumerState<PruebaWidgets> createState() => _PruebaWidgetsState();
 }
 
-class _PruebaWidgetsState extends State<PruebaWidgets> {
+class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
   final TextEditingController _numberController = TextEditingController();
   final TextEditingController _passController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _searchController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  // Controladores de texto para pruebas de endpoints de Auth.
+  final TextEditingController _authEmailController = TextEditingController(
+    text: "proyectos_ids@ulv.edu.mx",
+  );
+  final TextEditingController _authClubIdController = TextEditingController();
+  final TextEditingController _authPasswordController = TextEditingController();
+  final TextEditingController _authCodeController = TextEditingController();
+  final TextEditingController _authGivenNamesController = TextEditingController(
+    text: "Juan",
+  );
+  final TextEditingController _authFamilyNameController = TextEditingController(
+    text: "Pérez",
+  );
+
   DateTime? _selectedDate;
-  int _selectedTabIndex = 0; // 0: Formulario, 1: Colportor, 2: Asociado
+  int _selectedTabIndex = 0; // 0: Formulario, 1: Colportor, 2: Endpoints
   String? _selectedRole;
   String _selectedStatusFilter = "Todos";
   String _searchQuery = "";
   bool _isLoading = false;
-  int _quantity = 1;
   String? _uploadedFileName;
 
-  // Datos de prueba limpios y directos
-  final List<_MockUser> _allUsers = const [
-    _MockUser(name: "Jose Pérez", category: "Colportor", status: "Activo"),
-    _MockUser(name: "María Gómez", category: "Colportor", status: "Activo"),
-    _MockUser(name: "Ana Martínez", category: "Colportor", status: "Pendiente"),
-    _MockUser(name: "Carlos Ruiz", category: "Asociado", status: "Pendiente"),
-    _MockUser(name: "Sofía Hernández", category: "Asociado", status: "Activo"),
+  final List<_MockUser> _users = const [
+    _MockUser(name: "Ana García", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Carlos López", category: "Colportor", status: "Pendiente"),
+    _MockUser(
+      name: "Daniela Martínez",
+      category: "Colportor",
+      status: "Activo",
+    ),
+    _MockUser(
+      name: "Eduardo Hernández",
+      category: "Colportor",
+      status: "Pendiente",
+    ),
+    _MockUser(
+      name: "Fernanda Castillo",
+      category: "Colportor",
+      status: "Activo",
+    ),
+    _MockUser(
+      name: "Gabriela Morales",
+      category: "Colportor",
+      status: "Activo",
+    ),
+    _MockUser(
+      name: "Héctor Ramírez",
+      category: "Colportor",
+      status: "Pendiente",
+    ),
+    _MockUser(name: "Isabel Torres", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Jorge Vargas", category: "Colportor", status: "Activo"),
+    _MockUser(
+      name: "Karla Mendoza",
+      category: "Colportor",
+      status: "Pendiente",
+    ),
+    _MockUser(name: "Luis Navarro", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Mariana Ríos", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Néstor Ortiz", category: "Colportor", status: "Pendiente"),
+    _MockUser(name: "Olga Paredes", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Pedro Salazar", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Rosa Medina", category: "Colportor", status: "Pendiente"),
+    _MockUser(name: "Sergio Castro", category: "Colportor", status: "Activo"),
+    _MockUser(name: "Tania Cruz", category: "Colportor", status: "Activo"),
+    _MockUser(
+      name: "Ulises Guzmán",
+      category: "Colportor",
+      status: "Pendiente",
+    ),
+    _MockUser(name: "Valeria Soto", category: "Colportor", status: "Activo"),
   ];
-
-  // Filtro simplificado: categoría según tab, estado y únicamente por nombre
-  List<_MockUser> get _filteredUsers {
-    final currentCategory = _selectedTabIndex == 1 ? "Colportor" : "Asociado";
-
-    return _allUsers.where((user) {
-      final matchesCategory = user.category == currentCategory;
-
-      final matchesStatus =
-          _selectedStatusFilter == "Todos" ||
-          (_selectedStatusFilter == "Activos" && user.status == "Activo") ||
-          (_selectedStatusFilter == "Pendientes" && user.status == "Pendiente");
-
-      // Búsqueda únicamente por nombre
-      final matchesSearch =
-          _searchQuery.isEmpty ||
-          user.name.toLowerCase().contains(_searchQuery);
-
-      return matchesCategory && matchesStatus && matchesSearch;
-    }).toList();
-  }
 
   @override
   void dispose() {
@@ -98,13 +134,34 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
     _passController.dispose();
     _descriptionController.dispose();
     _searchController.dispose();
+    _authEmailController.dispose();
+    _authClubIdController.dispose();
+    _authPasswordController.dispose();
+    _authCodeController.dispose();
+    _authGivenNamesController.dispose();
+    _authFamilyNameController.dispose();
     super.dispose();
   }
 
-  // Abre el selector de fecha y guarda la selección.
+  // Filtra por pestaña y búsqueda de texto.
+  List<_MockUser> get _filteredUsers {
+    return _users.where((user) {
+      final matchesSearch =
+          _searchQuery.isEmpty ||
+          user.name.toLowerCase().contains(_searchQuery);
+      final matchesStatus = switch (_selectedStatusFilter) {
+        "Activos" => user.status == "Activo",
+        "Pendientes" => user.status == "Pendiente",
+        _ => true,
+      };
+      return matchesSearch && matchesStatus;
+    }).toList();
+  }
+
+  // Abre el selector de fecha y actualiza el estado.
   Future<void> _handleSelectDate() async {
     final pickedDate = await DatePickerFormat(
-      firstDate: DateTime(2000),
+      firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     ).show(context);
 
@@ -132,6 +189,15 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
   @override
   Widget build(BuildContext context) {
     final filteredList = _filteredUsers;
+    final authState = ref.watch(authProvider);
+
+    // Muestra notificaciones cuando el estado de autenticación reporte errores.
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != previous?.errorMessage) {
+        SnackBarFormat().show(context, next.errorMessage!, isError: true);
+      }
+    });
 
     return ScaffoldFormat(
       titleAppBar: "Prueba de Widgets",
@@ -143,7 +209,6 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
       },
       actions: [
         ButtonFormat.icon(icon: AppIcon.calendar, onPressed: _handleSelectDate),
-        // Botón interactivo para probar SkeletonFormat
         ButtonFormat.icon(
           icon: _isLoading ? AppIcon.visibilityOff : AppIcon.visibility,
           onPressed: () {
@@ -182,9 +247,9 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
         ),
       ],
       children: [
-        // Selector de pestañas superiores: Formulario, Colportor, Asociado
+        // Selector de pestañas: Formulario, Colportor, Endpoints Auth
         TabBarFormat(
-          labels: const ["Formulario", "Colportor", "Asociado"],
+          labels: const ["Formulario", "Colportor", "Endpoints"],
           selectedIndex: _selectedTabIndex,
           onTabSelected: (index) {
             setState(() => _selectedTabIndex = index);
@@ -193,191 +258,161 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
 
         AppSpacing.heightMedium,
 
-        // Lista horizontal con ListViewFormat (mantenida siempre arriba)
-        ListViewFormat(
-          scrollDirection: Axis.horizontal,
-          itemCount: 8,
-          itemBuilder: (context, index) {
-            return ContainerFormat(
-              width: 100,
-              onPressed: () {
-                SnackBarFormat().show(context, "Clic en Item ${index + 1}");
-              },
-              children: [Center(child: TextFormat.body("Item ${index + 1}"))],
-            );
-          },
-        ),
-
-        AppSpacing.heightMedium,
-
-        // Contenido condicional según la pestaña seleccionada
         if (_selectedTabIndex == 0) ...[
           // Pestaña Formulario
-          SkeletonFormat(
-            isLoading: _isLoading,
-            child: ContainerFormat(
-              children: [
-                TextFormat.subtitle("Formulario de prueba"),
-                Padding(
-                  padding: AppSpacing.paddingSymetric0_16,
-                  child: TextFormat.bodySecondary(
-                    "Ejemplo sencillo de campos de texto y selector desplegable.",
-                  ),
-                ),
-                // Selector desplegable (DropdownFormat)
-                DropdownFormat<String>(
-                  labelText: "Categoría",
-                  hintText: "Selecciona una opción",
-                  prefixIcon: AppIcon.person,
-                  value: _selectedRole,
-                  validator: GlobalValidator.validateRequired,
-                  items: const [
-                    DropdownMenuItem(
-                      value: "colportor",
-                      child: Text("Colportor"),
-                    ),
-                    DropdownMenuItem(
-                      value: "asociado",
-                      child: Text("Asociado"),
-                    ),
-                  ],
-                  onChanged: (val) {
-                    setState(() => _selectedRole = val);
-                  },
-                ),
-                AppSpacing.heightMedium,
-                InputTextFormart(
-                  prefixIcon: AppIcon.home,
-                  validator: GlobalValidator.validateRequired,
-                  controller: _descriptionController,
-                  keyboardType: TextInputType.multiline,
-                  labelText: "Descripción",
-                  hintText:
-                      "Ej. Pueden probar con más ejemplos, solo les coloqué algunos.",
-                  maxLength: 100,
-                  minLines: 2,
-                  maxLines: 4,
-                ),
-                AppSpacing.heightMedium,
-                InputTextFormart(
-                  prefixIcon: AppIcon.calendar,
-                  validator: GlobalValidator.validateNumber,
-                  controller: _numberController,
-                  keyboardType: TextInputType.number,
-                  labelText: "Número",
-                  hintText: "Ej. 123456",
-                  maxLength: 30,
-                ),
-                AppSpacing.heightMedium,
-                InputTextFormart(
-                  prefixIcon: AppIcon.password,
-                  validator: GlobalValidator.validatePassword,
-                  controller: _passController,
-                  keyboardType: TextInputType.text,
-                  labelText: "Contraseña",
-                  hintText: "Ej. Aa12345%",
-                  maxLength: 50,
-                ),
-                AppSpacing.heightMedium,
-                ButtonFormat.primary(
-                  formKey: _formKey,
-                  label: "Validar Formulario",
-                  onPressed: () => SnackBarFormat().show(
+          ListViewFormat(
+            scrollDirection: Axis.horizontal,
+            itemCount: 8,
+            height: 48,
+            itemBuilder: (context, index) {
+              return ContainerFormat(
+                width: 100,
+                onPressed: () {
+                  SnackBarFormat().show(context, "Clic en Item ${index + 1}");
+                },
+                children: [Center(child: TextFormat.body("Item ${index + 1}"))],
+              );
+            },
+          ),
+          AppSpacing.heightMedium,
+          InputTextFormart(
+            controller: _numberController,
+            prefixIcon: AppIcon.person,
+            labelText: "Número",
+            hintText: "Ej. 42",
+            maxLength: 5,
+            keyboardType: TextInputType.number,
+            validator: GlobalValidator.validateNumber,
+          ),
+          AppSpacing.heightMedium,
+          InputTextFormart(
+            controller: _passController,
+            prefixIcon: AppIcon.password,
+            labelText: "Contraseña",
+            hintText: "Ingresa tu contraseña",
+            maxLength: 50,
+          ),
+          AppSpacing.heightMedium,
+          DropdownFormat<String>(
+            hintText: "Selecciona un rol",
+            value: _selectedRole,
+            items: ["Administrador", "Usuario", "Invitado"]
+                .map((role) => DropdownMenuItem(value: role, child: Text(role)))
+                .toList(),
+            onChanged: (value) => setState(() => _selectedRole = value),
+            validator: (value) => GlobalValidator.validateRequired(value),
+          ),
+          AppSpacing.heightMedium,
+          InputTextFormart(
+            controller: _descriptionController,
+            prefixIcon: AppIcon.home,
+            hintText: "Descripción amplia del problema...",
+            maxLength: 200,
+            maxLines: 4,
+          ),
+          AppSpacing.heightMedium,
+          QuantitySelectorFormat(
+            value: 1,
+            onChanged: (quantity) {
+              SnackBarFormat().show(context, "Cantidad: $quantity");
+            },
+          ),
+          AppSpacing.heightMedium,
+          ContainerFormat(
+            children: [
+              ButtonFormat.primary(
+                label: "Botón primario",
+                formKey: _formKey,
+                onPressed: () {
+                  SnackBarFormat().show(
                     context,
-                    "Formulario válido: \n ${_descriptionController.text} \n ${_passController.text} \n ${_numberController.text}",
-                  ),
-                ),
-                AppSpacing.heightMedium,
-                QuantitySelectorFormat(
-                  value: _quantity,
-                  onChanged: (val) => setState(() => _quantity = val),
-                ),
-                AppSpacing.heightMedium,
-                FileUploadFormat(
-                  label: "Subir comprobante o documento",
-                  fileName: _uploadedFileName,
-                  onFileSelected: (path) {
-                    final name = path.split(RegExp(r'[\\/]')).last;
-                    setState(() => _uploadedFileName = name);
-                    SnackBarFormat().show(context, "Archivo: $name");
-                  },
-                  onRemove: () => setState(() => _uploadedFileName = null),
-                ),
-                AppSpacing.heightMedium,
-                ButtonFormat.secondary(
-                  label: "Botón secundario",
-                  onPressed: () {},
-                ),
-                AppSpacing.heightMedium,
-                ButtonFormat.text(
-                  label: "Abrir BottomSheet",
-                  onPressed: () {
-                    BottomSheetFormat(
-                      title: "Opciones",
-                      children: [
-                        TextFormat.body(
-                          "Contenido necesario en bottomsheet. Pueden colocar la cantidad de contenido que deseen, tiene scroll.",
-                        ),
-                        AppSpacing.heightMedium,
-                        ButtonFormat.text(
-                          label: "Escanear QR",
-                          onPressed: () async {
-                            // Cierra el sheet para que el SnackBar quede visible.
-                            Navigator.pop(context);
-                            final code = await const QrScannerFormat(
-                              title: "Escanear Asistencia",
-                              label: "Apunta al código QR de la sesión",
-                            ).show(context);
-                            if (code != null && context.mounted) {
-                              SnackBarFormat().show(
-                                context,
-                                "Asistencia registrada: $code",
-                              );
-                            }
-                          },
-                        ),
-                        AppSpacing.heightMedium,
-                        ButtonFormat.text(
-                          label: "Ver QR",
-                          onPressed: () {
-                            showDialog(
-                              context: context,
-                              builder: (_) => const Dialog(
-                                child: Padding(
-                                  padding: AppSpacing.paddingMedium,
-                                  child: QrGeneratorFormat(
-                                    data: "ASISTENCIA-COLPORTANDO-2026",
-                                    title: "Pase de Lista",
-                                    subtitle:
-                                        "Escanea para registrar asistencia",
-                                  ),
+                    "Formulario validado con éxito",
+                  );
+                },
+              ),
+              AppSpacing.heightMedium,
+              FileUploadFormat(
+                label: "Subir comprobante",
+                fileName: _uploadedFileName,
+                onFileSelected: (path) {
+                  final name = path.split(RegExp(r'[\\/]')).last;
+                  setState(() => _uploadedFileName = name);
+                  SnackBarFormat().show(context, "Archivo: $name");
+                },
+                onRemove: () => setState(() => _uploadedFileName = null),
+              ),
+              AppSpacing.heightMedium,
+              ButtonFormat.secondary(
+                label: "Botón secundario",
+                onPressed: () {},
+              ),
+              AppSpacing.heightMedium,
+              ButtonFormat.text(
+                label: "Abrir BottomSheet",
+                onPressed: () {
+                  BottomSheetFormat(
+                    title: "Opciones",
+                    children: [
+                      TextFormat.body(
+                        "Contenido necesario en bottomsheet. Pueden colocar la cantidad de contenido que deseen, tiene scroll.",
+                      ),
+                      AppSpacing.heightMedium,
+                      ButtonFormat.text(
+                        label: "Escanear QR",
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final code = await const QrScannerFormat(
+                            title: "Escanear Asistencia",
+                            label: "Apunta al código QR de la sesión",
+                          ).show(context);
+                          if (code != null && context.mounted) {
+                            SnackBarFormat().show(
+                              context,
+                              "Asistencia registrada: $code",
+                            );
+                          }
+                        },
+                      ),
+                      AppSpacing.heightMedium,
+                      ButtonFormat.text(
+                        label: "Ver QR",
+                        onPressed: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => const Dialog(
+                              child: Padding(
+                                padding: AppSpacing.paddingMedium,
+                                child: QrGeneratorFormat(
+                                  data: "ASISTENCIA-COLPORTANDO-2026",
+                                  title: "Pase de Lista",
+                                  subtitle: "Escanea para registrar asistencia",
                                 ),
                               ),
-                            );
-                          },
-                        ),
-                        AppSpacing.heightMedium,
-                        const InputTextFormart(
-                          hintText: "Prueba de texto dinámico",
-                          maxLength: 50,
-                        ),
-                        AppSpacing.heightMedium,
-                        ButtonFormat.text(
-                          label: "Abrir Diálogo",
-                          onPressed: _handleShowDialog,
-                        ),
-                        const CheckboxFormat(
-                          text: "Acepto términos y condiciones",
-                        ),
-                      ],
-                    ).show(context);
-                  },
-                ),
-              ],
-            ),
+                            ),
+                          );
+                        },
+                      ),
+                      AppSpacing.heightMedium,
+                      const InputTextFormart(
+                        hintText: "Prueba de texto dinámico",
+                        maxLength: 50,
+                      ),
+                      AppSpacing.heightMedium,
+                      ButtonFormat.text(
+                        label: "Abrir Diálogo",
+                        onPressed: _handleShowDialog,
+                      ),
+                      const CheckboxFormat(
+                        text: "Acepto términos y condiciones",
+                      ),
+                    ],
+                  ).show(context);
+                },
+              ),
+            ],
           ),
-        ] else ...[
-          // Pestañas colportor o asociado. Buscador únicamente por nombre (InputTextFormart con onChanged)
+        ] else if (_selectedTabIndex == 1) ...[
+          // Pestaña Colportor
           InputTextFormart(
             controller: _searchController,
             prefixIcon: AppIcon.search,
@@ -389,10 +424,7 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
               });
             },
           ),
-
           AppSpacing.heightMedium,
-
-          // Chips de estado (ListViewFormat horizontal)
           ListViewFormat(
             scrollDirection: Axis.horizontal,
             height: 38,
@@ -409,10 +441,7 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
               );
             },
           ),
-
           AppSpacing.heightMedium,
-
-          // Lista de usuarios con SkeletonFormat y ListViewFormat
           SkeletonFormat(
             isLoading: _isLoading,
             child: ListViewFormat(
@@ -445,6 +474,244 @@ class _PruebaWidgetsState extends State<PruebaWidgets> {
               },
             ),
           ),
+        ] else ...[
+          // Pestaña Endpoints: Ejecución directa de los endpoints de Auth mediante Riverpod
+          ContainerFormat(
+            children: [
+              TextFormat.subtitle("Sesión Actual"),
+              AppSpacing.heightSmall,
+              TextFormat.body(
+                authState.isAuthenticated
+                    ? "Usuario: ${authState.user?.email} (${authState.user?.id})"
+                    : "Estado: No autenticado",
+              ),
+            ],
+          ),
+          AppSpacing.heightMedium,
+          InputTextFormart(
+            controller: _authEmailController,
+            prefixIcon: AppIcon.email,
+            labelText: "Correo Electrónico",
+            hintText: "correo@ejemplo.com",
+            maxLength: 100,
+          ),
+          AppSpacing.heightSmall,
+          InputTextFormart(
+            controller: _authPasswordController,
+            prefixIcon: AppIcon.password,
+            labelText: "Contraseña",
+            hintText: "••••••••",
+            maxLength: 50,
+          ),
+          AppSpacing.heightSmall,
+          InputTextFormart(
+            controller: _authCodeController,
+            prefixIcon: AppIcon.doneAll,
+            labelText: "Código (8 dígitos)",
+            hintText: "12345678",
+            maxLength: 15,
+          ),
+          AppSpacing.heightSmall,
+          InputTextFormart(
+            controller: _authClubIdController,
+            prefixIcon: AppIcon.home,
+            labelText: "Club ID (UUID para invitación)",
+            hintText: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+            maxLength: 50,
+          ),
+          AppSpacing.heightMedium,
+
+          // Iniciar Sesión (POST /auth/login)
+          ButtonFormat.primary(
+            label: "1. Iniciar Sesión (/auth/login)",
+            isLoading: authState.isLoading,
+            onPressed: () async {
+              await ref
+                  .read(authProvider.notifier)
+                  .login(
+                    email: _authEmailController.text.trim(),
+                    password: _authPasswordController.text.trim(),
+                  );
+              if (context.mounted && ref.read(authProvider).isAuthenticated) {
+                SnackBarFormat().show(context, "Sesión iniciada correctamente");
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Consultar Usuario (GET /auth/me)
+          ButtonFormat.secondary(
+            label: "2. Obtener Perfil (/auth/me)",
+            onPressed: () async {
+              await ref.read(authProvider.notifier).getMe();
+              if (context.mounted && ref.read(authProvider).user != null) {
+                final u = ref.read(authProvider).user!;
+                SnackBarFormat().show(
+                  context,
+                  "Perfil: ${u.email} (${u.status})",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Renovar Sesión (POST /auth/refresh)
+          ButtonFormat.secondary(
+            label: "3. Renovar Token (/auth/refresh)",
+            onPressed: () async {
+              final ok = await ref.read(authProvider.notifier).refreshSession();
+              if (context.mounted && ok) {
+                SnackBarFormat().show(context, "Token renovado con éxito");
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Solicitar Verificación de Email (POST /auth/email-verification/request)
+          ButtonFormat.secondary(
+            label: "4. Solicitar Verif. Email",
+            onPressed: () async {
+              final ok = await ref
+                  .read(authProvider.notifier)
+                  .requestEmailVerification(
+                    email: _authEmailController.text.trim(),
+                  );
+              if (context.mounted && ok) {
+                SnackBarFormat().show(
+                  context,
+                  "Código de verificación solicitado",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Confirmar Verificación de Email (POST /auth/email-verification/confirm)
+          ButtonFormat.secondary(
+            label: "5. Confirmar Verif. Email",
+            onPressed: () async {
+              final ok = await ref
+                  .read(authProvider.notifier)
+                  .confirmEmailVerification(
+                    email: _authEmailController.text.trim(),
+                    code: _authCodeController.text.trim(),
+                  );
+              if (context.mounted && ok) {
+                SnackBarFormat().show(
+                  context,
+                  "Email verificado correctamente",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Solicitar Restablecer Contraseña (POST /auth/password-reset/request)
+          ButtonFormat.secondary(
+            label: "6. Solicitar Reset Contraseña",
+            onPressed: () async {
+              final ok = await ref
+                  .read(authProvider.notifier)
+                  .requestPasswordReset(
+                    email: _authEmailController.text.trim(),
+                  );
+              if (context.mounted && ok) {
+                SnackBarFormat().show(context, "Código de reset solicitado");
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Confirmar Restablecer Contraseña (POST /auth/password-reset/confirm)
+          ButtonFormat.secondary(
+            label: "7. Confirmar Reset Contraseña",
+            onPressed: () async {
+              final ok = await ref
+                  .read(authProvider.notifier)
+                  .confirmPasswordReset(
+                    email: _authEmailController.text.trim(),
+                    code: _authCodeController.text.trim(),
+                    newPassword: _authPasswordController.text.trim(),
+                  );
+              if (context.mounted && ok) {
+                SnackBarFormat().show(context, "Contraseña cambiada con éxito");
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Inspeccionar Invitación de Club (POST /auth/invitations/inspect)
+          ButtonFormat.secondary(
+            label: "8. Inspeccionar Invitación (/invitations/inspect)",
+            onPressed: () async {
+              final info = await ref
+                  .read(authProvider.notifier)
+                  .inspectInvitation(
+                    email: _authEmailController.text.trim(),
+                    code: _authCodeController.text.trim(),
+                  );
+              if (context.mounted && info != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Club: ${info['clubName']} | Institución: ${info['institutionName']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Aceptar Invitación de Club (POST /auth/invitations/accept)
+          ButtonFormat.secondary(
+            label: "9. Aceptar Invitación (/invitations/accept)",
+            onPressed: () async {
+              final info = await ref
+                  .read(authProvider.notifier)
+                  .acceptInvitation(
+                    email: _authEmailController.text.trim(),
+                    code: _authCodeController.text.trim(),
+                    password: _authPasswordController.text.trim(),
+                    givenNames: _authGivenNamesController.text.trim(),
+                    familyName: _authFamilyNameController.text.trim(),
+                  );
+              if (context.mounted && info != null) {
+                SnackBarFormat().show(context, "Invitación aceptada con éxito");
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Crear Invitación (POST /auth/invitations)
+          ButtonFormat.secondary(
+            label: "10. Crear Invitación (/auth/invitations)",
+            onPressed: () async {
+              final info = await ref
+                  .read(authProvider.notifier)
+                  .createInvitation(
+                    clubId: _authClubIdController.text.trim(),
+                    // email: _authEmailController.text.trim(),
+                    email: "jonathan.juarez@ulv.edu.mx",
+                  );
+              if (context.mounted && info != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Invitación creada: ${info['invitationId']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Cerrar Sesión (POST /auth/logout)
+          ButtonFormat.text(
+            label: "11. Cerrar Sesión (/auth/logout)",
+            onPressed: () async {
+              await ref.read(authProvider.notifier).signOut();
+              if (context.mounted) {
+                SnackBarFormat().show(context, "Sesión cerrada");
+              }
+            },
+          ),
+          AppSpacing.heightMedium,
         ],
       ],
     );
