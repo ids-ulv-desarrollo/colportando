@@ -29,8 +29,6 @@ class AppIcon {
   );
   static const Widget phone = HugeIcon(icon: HugeIcons.strokeRoundedPhoneCall);
 
-  static const Widget phone = HugeIcon(icon: HugeIcons.strokeRoundedPhoneCall);
-
   // Iconos por ubicar
   static const Widget calendar = HugeIcon(
     icon: HugeIcons.strokeRoundedCalendar01,
