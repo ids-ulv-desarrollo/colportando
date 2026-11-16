@@ -27,6 +27,7 @@ class AppIcon {
   static const Widget notifications = HugeIcon(
     icon: HugeIcons.strokeRoundedNotification01,
   );
+  static const Widget phone = HugeIcon(icon: HugeIcons.strokeRoundedPhoneCall);
 
   static const Widget phone = HugeIcon(icon: HugeIcons.strokeRoundedPhoneCall);
 
