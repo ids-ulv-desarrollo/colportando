@@ -93,11 +93,16 @@ class _LogoFormart extends StatelessWidget {
             Scaffold.maybeOf(context)?.closeDrawer();
             onTap?.call();
           },
-          child: CircleAvatar(
-            radius: 36,
-            backgroundColor: context.colorScheme.surface,
-            foregroundColor: context.colorScheme.onSurface,
-            child: AppIcon.person,
+          child: Stack(
+            children: [
+              CircleAvatar(
+                radius: 36,
+                backgroundColor: context.colorScheme.surface,
+                foregroundColor: context.colorScheme.onSurface,
+                child: AppIcon.person,
+              ),
+              AppIcon.edit,
+            ],
           ),
         ),
       ),

@@ -47,7 +47,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final isTablet = AppBreakpoint.isTablet(context);
     final role = ref.watch(authProvider).user?.role;
-    // final role = "directiva";
+    // final role = "colportor";
     final items = widget.items ?? RoleNavigationConfig.getItems(role);
     final screens = widget.screens ?? RoleNavigationConfig.getScreens(role);
     final drawerItems = RoleNavigationConfig.getDrawerItems(context, role);

@@ -28,6 +28,8 @@ class AppIcon {
     icon: HugeIcons.strokeRoundedNotification01,
   );
 
+  static const Widget phone = HugeIcon(icon: HugeIcons.strokeRoundedPhoneCall);
+
   // Iconos por ubicar
   static const Widget calendar = HugeIcon(
     icon: HugeIcons.strokeRoundedCalendar01,
@@ -42,6 +44,7 @@ class AppIcon {
   static const Widget upload = HugeIcon(icon: HugeIcons.strokeRoundedUpload01);
   static const Widget file = HugeIcon(icon: HugeIcons.strokeRoundedFile01);
   static const Widget camera = HugeIcon(icon: HugeIcons.strokeRoundedCamera01);
+  static const Widget document = HugeIcon(icon: HugeIcons.strokeRoundedFile02);
 
   // Perfil
   static const Widget lockOutline = HugeIcon(

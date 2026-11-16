@@ -7,11 +7,10 @@ import 'package:colportando/features/campaigns/presentation/screens/agenda_scree
 import 'package:colportando/features/campaigns/presentation/screens/appeals_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/fields_screen.dart';
-import 'package:colportando/features/campaigns/presentation/screens/participations_screen.dart';
 import 'package:colportando/features/catalog/presentation/screens/catalog_screen.dart';
 import 'package:colportando/features/credits/presentation/screens/credits_screen.dart';
 import 'package:colportando/features/deposits/presentation/screens/deposits_screen.dart';
-import 'package:colportando/features/participants/presentation/screens/groups_screen.dart';
+import 'package:colportando/features/groups/presentation/screens/groups_screen.dart';
 import 'package:colportando/features/participants/presentation/screens/participants_screen.dart';
 import 'package:colportando/features/sales/presentation/screens/payments_screen.dart';
 import 'package:colportando/features/sales/presentation/screens/sales_screen.dart';
@@ -124,7 +123,6 @@ class RoleNavigationConfig {
         return const [
           ParticipantsScreen(),
           GroupsScreen(),
-          ParticipationsScreen(),
           CampaignsScreen(),
           TrainingsScreen(),
           FieldsScreen(),
@@ -135,7 +133,6 @@ class RoleNavigationConfig {
 
       case "colportor":
         return const [
-          ParticipationsScreen(),
           AcquisitionsScreen(),
           DepositsScreen(),
           PaymentsScreen(),
@@ -147,7 +144,6 @@ class RoleNavigationConfig {
 
       case "asociado":
         return const [
-          ParticipationsScreen(),
           AcquisitionsScreen(),
           CatalogScreen(),
           DepositsScreen(),
