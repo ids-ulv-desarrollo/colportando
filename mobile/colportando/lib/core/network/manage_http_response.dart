@@ -17,8 +17,8 @@ Result<T> manageHttpResponse<T>({
   if (response.statusCode >= 200 && response.statusCode < 300) {
     if (fromJson != null) {
       try {
-        final payload = (body is Map && body.containsKey('data'))
-            ? body['data']
+        final payload = (body is Map)
+            ? (body['items'] ?? body['data'] ?? body)
             : body;
         return Result.success(fromJson(payload));
       } catch (e) {
@@ -30,7 +30,9 @@ Result<T> manageHttpResponse<T>({
 
   // Extracción unificada del mensaje de error
   final message = (body is Map)
-      ? (body['message'] ?? body['error'] ?? body['errors']?[0]?['message'])
+      ? (body['message'] ??
+            body['error']?['message'] ??
+            body['errors']?[0]?['message'])
       : null;
 
   if (response.statusCode == 401) {

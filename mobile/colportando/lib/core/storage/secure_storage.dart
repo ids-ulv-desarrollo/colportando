@@ -1,31 +1,30 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Administra el almacenamiento cifrado de la sesión del usuario mediante Android Keystore / iOS Keychain.
+// Administra el almacenamiento cifrado de tokens mediante Android Keystore / iOS Keychain.
 class SecureStorage {
-  static const String _tokenKey = 'auth_token';
-  static const String _userDataKey = 'auth_user_data';
+  static const String _accessTokenKey = 'colportando.auth.access_token';
+  static const String _refreshTokenKey = 'colportando.auth.refresh_token';
 
-  // Configura el backend nativo de cifrado para Android e iOS.
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  // Guarda el token de autenticación de forma cifrada.
-  static Future<bool> saveToken(String token) => _write(_tokenKey, token);
+  // Guarda el access token de forma cifrada.
+  static Future<bool> saveToken(String token) => _write(_accessTokenKey, token);
 
-  // Obtiene el token de autenticación almacenado, o null si no existe o no se pudo leer.
-  static Future<String?> getToken() => _read(_tokenKey);
+  // Obtiene el access token almacenado.
+  static Future<String?> getToken() => _read(_accessTokenKey);
 
-  // Guarda los datos del usuario serializados en formato JSON.
-  static Future<bool> saveUserData(String jsonUserData) =>
-      _write(_userDataKey, jsonUserData);
+  // Guarda el refresh token de forma cifrada.
+  static Future<bool> saveRefreshToken(String token) =>
+      _write(_refreshTokenKey, token);
 
-  // Obtiene los datos del usuario almacenados, o null si no existen o no se pudieron leer.
-  static Future<String?> getUserData() => _read(_userDataKey);
+  // Obtiene el refresh token almacenado.
+  static Future<String?> getRefreshToken() => _read(_refreshTokenKey);
 
-  // Elimina toda la información de sesión almacenada.
+  // Elimina todos los tokens de sesión.
   static Future<void> clearSession() async {
     try {
       await _storage.deleteAll();

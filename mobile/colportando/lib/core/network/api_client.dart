@@ -3,29 +3,41 @@ import 'package:colportando/core/error/exception_error.dart';
 import 'package:colportando/core/error/result.dart';
 import 'package:colportando/core/network/api_constants.dart';
 import 'package:colportando/core/network/manage_http_response.dart';
+import 'package:colportando/core/storage/secure_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 class ApiClient {
-  // Se usa http.Client para abrir peticiones http y mantenerla activa, lo cual puede mejorar el rendimiento, ya que http puro abre una nueva conexión cada vez que se hace una peticion.
+  // Mantiene una conexión HTTP persistente para optimizar el rendimiento de red.
   final http.Client _client = http.Client();
+  final Uuid _uuid = const Uuid();
 
-  Map<String, String> _headers([String? token]) => {
-    "Content-Type": "application/json; charset=utf-8",
-    if (token != null && token.isNotEmpty) "Authorization": token,
-  };
+  // Construye los encabezados inyectando el token y la clave de idempotencia proporcionada o generada con UUID v4.
+  Future<Map<String, String>> _headers(
+    String method, {
+    String? idempotencyKey,
+  }) async {
+    final token = await SecureStorage.getToken();
+    return {
+      "Content-Type": "application/json; charset=utf-8",
+      if (token != null && token.isNotEmpty) "Authorization": "Bearer $token",
+      if (method == "POST" || method == "PUT")
+        "idempotency-key": idempotencyKey ?? _uuid.v4(),
+    };
+  }
 
-  // Ejecuta la petición HTTP, donde envía el body y token al servidor, y transforma la respuesta recibida con fromJson.
+  // Ejecuta la petición HTTP y procesa la respuesta mediante manageHttpResponse.
   Future<Result<T>> _request<T>(
     String method,
     String endpoint, {
     Map<String, dynamic>? body,
-    String? token,
+    String? idempotencyKey,
     T Function(dynamic json)? fromJson,
   }) async {
     try {
-      final uri = Uri.parse('$uriLocal$endpoint');
-      final headers = _headers(token);
+      final uri = Uri.parse('$uriProduction$endpoint');
+      final headers = await _headers(method, idempotencyKey: idempotencyKey);
       final encodedBody = body != null ? jsonEncode(body) : null;
 
       final response = switch (method) {
@@ -48,37 +60,40 @@ class ApiClient {
 
   Future<Result<T>> get<T>(
     String endpoint, {
-    String? token,
     T Function(dynamic json)? fromJson,
-  }) => _request("GET", endpoint, token: token, fromJson: fromJson);
+  }) => _request("GET", endpoint, fromJson: fromJson);
 
   Future<Result<T>> post<T>(
     String endpoint, {
     Map<String, dynamic>? body,
-    String? token,
+    String? idempotencyKey,
     T Function(dynamic json)? fromJson,
-  }) =>
-      _request("POST", endpoint, body: body, token: token, fromJson: fromJson);
+  }) => _request(
+    "POST",
+    endpoint,
+    body: body,
+    idempotencyKey: idempotencyKey,
+    fromJson: fromJson,
+  );
 
   Future<Result<T>> put<T>(
     String endpoint, {
     Map<String, dynamic>? body,
-    String? token,
+    String? idempotencyKey,
     T Function(dynamic json)? fromJson,
-  }) => _request("PUT", endpoint, body: body, token: token, fromJson: fromJson);
+  }) => _request(
+    "PUT",
+    endpoint,
+    body: body,
+    idempotencyKey: idempotencyKey,
+    fromJson: fromJson,
+  );
 
   Future<Result<T>> delete<T>(
     String endpoint, {
     Map<String, dynamic>? body,
-    String? token,
     T Function(dynamic json)? fromJson,
-  }) => _request(
-    "DELETE",
-    endpoint,
-    body: body,
-    token: token,
-    fromJson: fromJson,
-  );
+  }) => _request("DELETE", endpoint, body: body, fromJson: fromJson);
 
   // Cierra el cliente HTTP liberando conexiones activas.
   void close() => _client.close();
