@@ -58,7 +58,6 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
     super.dispose();
   }
 
-  // Filtro reactivo para ListViewFormat basado en prueba_widgets.dart
   List<_Participant> get _filteredParticipants {
     return _allParticipants.where((participant) {
       // 1. Filtro por rol (Todos, Asociados o Colportores)
