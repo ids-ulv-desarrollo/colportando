@@ -88,12 +88,7 @@ class CreateInvitationUsecase {
   Future<Result<Map<String, dynamic>>> call({
     required String clubId,
     required String email,
-    String? idempotencyKey,
-  }) => repository.createInvitation(
-    clubId: clubId,
-    email: email,
-    idempotencyKey: idempotencyKey,
-  );
+  }) => repository.createInvitation(clubId: clubId, email: email);
 }
 
 class InspectInvitationUsecase {
@@ -120,7 +115,6 @@ class AcceptInvitationUsecase {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-    String? idempotencyKey,
   }) => repository.acceptInvitation(
     email: email,
     code: code,
@@ -129,6 +123,5 @@ class AcceptInvitationUsecase {
     familyName: familyName,
     secondFamilyName: secondFamilyName,
     phoneE164: phoneE164,
-    idempotencyKey: idempotencyKey,
   );
 }

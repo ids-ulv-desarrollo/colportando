@@ -6,8 +6,20 @@ import 'package:colportando/features/auth/domain/repositories/auth_repository.da
 
 class AuthRepositoryImpl implements IAuthRepository {
   final IAuthRemoteDataSource remoteDataSource;
+  String? _refreshToken;
 
-  const AuthRepositoryImpl({required this.remoteDataSource});
+  AuthRepositoryImpl({required this.remoteDataSource});
+
+  Future<void> _saveTokens(Map<String, dynamic> session) async {
+    SecureStorage.accessToken = session['accessToken'] as String;
+    _refreshToken = session['refreshToken'] as String;
+    await SecureStorage.writeRefreshToken(_refreshToken!);
+  }
+
+  Future<void> _clearTokens() async {
+    _refreshToken = null;
+    await SecureStorage.clearRefreshToken();
+  }
 
   @override
   Future<Result<User>> login({
@@ -20,16 +32,14 @@ class AuthRepositoryImpl implements IAuthRepository {
     );
     if (sessionResult.isFailure) return Result.failure(sessionResult.error);
 
-    final session = sessionResult.data!;
-    await SecureStorage.saveToken(session['accessToken'] as String);
-    await SecureStorage.saveRefreshToken(session['refreshToken'] as String);
-
+    await _saveTokens(sessionResult.data!);
     return getMe();
   }
 
   @override
   Future<Result<void>> refreshSession() async {
-    final refreshToken = await SecureStorage.getRefreshToken();
+    final refreshToken =
+        _refreshToken ?? await SecureStorage.readRefreshToken();
     if (refreshToken == null) return const Result.failure('Sin sesión activa.');
 
     final result = await remoteDataSource.refreshSession(
@@ -37,25 +47,30 @@ class AuthRepositoryImpl implements IAuthRepository {
     );
     if (result.isFailure) return Result.failure(result.error);
 
-    final session = result.data!;
-    await SecureStorage.saveToken(session['accessToken'] as String);
-    await SecureStorage.saveRefreshToken(session['refreshToken'] as String);
+    await _saveTokens(result.data!);
     return const Result.success(null);
   }
 
   @override
   Future<Result<void>> logout() async {
-    final refreshToken = await SecureStorage.getRefreshToken();
+    final refreshToken =
+        _refreshToken ?? await SecureStorage.readRefreshToken();
     if (refreshToken != null) {
       await remoteDataSource.logout(refreshToken: refreshToken);
     }
-    await SecureStorage.clearSession();
+    await _clearTokens();
     return const Result.success(null);
   }
 
   @override
   Future<Result<User>> getMe() async {
-    final result = await remoteDataSource.getMe();
+    if (SecureStorage.accessToken == null) {
+      final refreshResult = await refreshSession();
+      if (refreshResult.isFailure) return Result.failure(refreshResult.error);
+    }
+    final result = await remoteDataSource.getMe(
+      accessToken: SecureStorage.accessToken!,
+    );
     return result.map((dto) => dto.toEntity());
   }
 
@@ -88,12 +103,17 @@ class AuthRepositoryImpl implements IAuthRepository {
   Future<Result<Map<String, dynamic>>> createInvitation({
     required String clubId,
     required String email,
-    String? idempotencyKey,
-  }) => remoteDataSource.createInvitation(
-    clubId: clubId,
-    email: email,
-    idempotencyKey: idempotencyKey,
-  );
+  }) async {
+    if (SecureStorage.accessToken == null) {
+      final refreshResult = await refreshSession();
+      if (refreshResult.isFailure) return Result.failure(refreshResult.error);
+    }
+    return remoteDataSource.createInvitation(
+      accessToken: SecureStorage.accessToken!,
+      clubId: clubId,
+      email: email,
+    );
+  }
 
   @override
   Future<Result<Map<String, dynamic>>> inspectInvitation({
@@ -110,7 +130,6 @@ class AuthRepositoryImpl implements IAuthRepository {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-    String? idempotencyKey,
   }) => remoteDataSource.acceptInvitation(
     email: email,
     code: code,
@@ -119,6 +138,5 @@ class AuthRepositoryImpl implements IAuthRepository {
     familyName: familyName,
     secondFamilyName: secondFamilyName,
     phoneE164: phoneE164,
-    idempotencyKey: idempotencyKey,
   );
 }

@@ -1,56 +1,44 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Administra el almacenamiento cifrado de tokens mediante Android Keystore / iOS Keychain.
+// Administra el almacenamiento cifrado del refresh token mediante Android Keystore / iOS Keychain.
 class SecureStorage {
-  static const String _accessTokenKey = 'colportando.auth.access_token';
   static const String _refreshTokenKey = 'colportando.auth.refresh_token';
+
+  // Mantiene el access token únicamente en memoria RAM durante la sesión.
+  static String? accessToken;
 
   static const FlutterSecureStorage _storage = FlutterSecureStorage(
     aOptions: AndroidOptions(),
     iOptions: IOSOptions(accessibility: KeychainAccessibility.first_unlock),
   );
 
-  // Guarda el access token de forma cifrada.
-  static Future<bool> saveToken(String token) => _write(_accessTokenKey, token);
-
-  // Obtiene el access token almacenado.
-  static Future<String?> getToken() => _read(_accessTokenKey);
+  // Lee el refresh token almacenado, o null si no existe.
+  static Future<String?> readRefreshToken() async {
+    try {
+      return await _storage.read(key: _refreshTokenKey);
+    } catch (error) {
+      debugPrint('Error al leer refresh token: $error');
+      return null;
+    }
+  }
 
   // Guarda el refresh token de forma cifrada.
-  static Future<bool> saveRefreshToken(String token) =>
-      _write(_refreshTokenKey, token);
-
-  // Obtiene el refresh token almacenado.
-  static Future<String?> getRefreshToken() => _read(_refreshTokenKey);
-
-  // Elimina todos los tokens de sesión.
-  static Future<void> clearSession() async {
+  static Future<void> writeRefreshToken(String token) async {
     try {
-      await _storage.deleteAll();
+      await _storage.write(key: _refreshTokenKey, value: token);
     } catch (error) {
-      debugPrint('Error al limpiar la sesión: $error');
+      debugPrint('Error al guardar refresh token: $error');
     }
   }
 
-  // Escribe un valor cifrado; nunca lanza excepciones hacia el llamador.
-  static Future<bool> _write(String key, String value) async {
+  // Elimina el refresh token almacenado y limpia el access token en RAM.
+  static Future<void> clearRefreshToken() async {
+    accessToken = null;
     try {
-      await _storage.write(key: key, value: value);
-      return true;
+      await _storage.delete(key: _refreshTokenKey);
     } catch (error) {
-      debugPrint('Error al escribir "$key": $error');
-      return false;
-    }
-  }
-
-  // Lee un valor cifrado; devuelve null ante cualquier fallo.
-  static Future<String?> _read(String key) async {
-    try {
-      return await _storage.read(key: key);
-    } catch (error) {
-      debugPrint('Error al leer "$key": $error');
-      return null;
+      debugPrint('Error al eliminar refresh token: $error');
     }
   }
 }

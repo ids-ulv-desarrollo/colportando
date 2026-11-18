@@ -14,7 +14,7 @@ abstract class IAuthRemoteDataSource {
 
   Future<Result<void>> logout({required String refreshToken});
 
-  Future<Result<UserDto>> getMe();
+  Future<Result<UserDto>> getMe({required String accessToken});
 
   Future<Result<void>> requestEmailVerification({required String email});
 
@@ -32,9 +32,9 @@ abstract class IAuthRemoteDataSource {
   });
 
   Future<Result<Map<String, dynamic>>> createInvitation({
+    required String accessToken,
     required String clubId,
     required String email,
-    String? idempotencyKey,
   });
 
   Future<Result<Map<String, dynamic>>> inspectInvitation({
@@ -50,7 +50,6 @@ abstract class IAuthRemoteDataSource {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-    String? idempotencyKey,
   });
 }
 
@@ -84,10 +83,12 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       .post<void>('/auth/logout', body: {'refreshToken': refreshToken});
 
   @override
-  Future<Result<UserDto>> getMe() => _apiClient.get<UserDto>(
-    '/auth/me',
-    fromJson: (json) => UserDto.fromJson(json),
-  );
+  Future<Result<UserDto>> getMe({required String accessToken}) =>
+      _apiClient.get<UserDto>(
+        '/auth/me',
+        token: accessToken,
+        fromJson: (json) => UserDto.fromJson(json),
+      );
 
   @override
   Future<Result<void>> requestEmailVerification({required String email}) =>
@@ -124,12 +125,12 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
 
   @override
   Future<Result<Map<String, dynamic>>> createInvitation({
+    required String accessToken,
     required String clubId,
     required String email,
-    String? idempotencyKey,
   }) => _apiClient.post<Map<String, dynamic>>(
     '/auth/invitations',
-    idempotencyKey: idempotencyKey,
+    token: accessToken,
     body: {'clubId': clubId, 'email': email},
     fromJson: (json) => json as Map<String, dynamic>,
   );
@@ -153,18 +154,16 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-    String? idempotencyKey,
   }) => _apiClient.post<Map<String, dynamic>>(
     '/auth/invitations/accept',
-    idempotencyKey: idempotencyKey,
     body: {
       'email': email,
       'code': code,
       'password': password,
       'givenNames': givenNames,
       'familyName': familyName,
-      if (secondFamilyName != null) 'secondFamilyName': secondFamilyName,
-      if (phoneE164 != null) 'phoneE164': phoneE164,
+      'secondFamilyName': ?secondFamilyName,
+      'phoneE164': ?phoneE164,
     },
     fromJson: (json) => json as Map<String, dynamic>,
   );

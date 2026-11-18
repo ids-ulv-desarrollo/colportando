@@ -20,7 +20,6 @@ abstract class AuthState with _$AuthState {
 // Notificador que gestiona el estado y las acciones de autenticación.
 class AuthNotifier extends Notifier<AuthState> {
   @override
-
   AuthState build() => const AuthState();
 
   // Ejecuta una acción asíncrona que no retorna entidad actualizando carga y error.

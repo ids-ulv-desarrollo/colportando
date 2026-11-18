@@ -28,7 +28,6 @@ abstract class IAuthRepository {
   Future<Result<Map<String, dynamic>>> createInvitation({
     required String clubId,
     required String email,
-    String? idempotencyKey,
   });
 
   Future<Result<Map<String, dynamic>>> inspectInvitation({
@@ -44,6 +43,5 @@ abstract class IAuthRepository {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-    String? idempotencyKey,
   });
 }
