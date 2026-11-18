@@ -25,6 +25,7 @@ import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/tab_bar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
 import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
+import 'package:colportando/features/workspace/presentation/riverpod/workspace_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -190,9 +191,18 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
   Widget build(BuildContext context) {
     final filteredList = _filteredUsers;
     final authState = ref.watch(authProvider);
+    final workspaceState = ref.watch(workspaceProvider);
 
     // Muestra notificaciones cuando el estado de autenticación reporte errores.
     ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != previous?.errorMessage) {
+        SnackBarFormat().show(context, next.errorMessage!, isError: true);
+      }
+    });
+
+    // Muestra notificaciones cuando el estado de workspace reporte errores.
+    ref.listen<WorkspaceState>(workspaceProvider, (previous, next) {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         SnackBarFormat().show(context, next.errorMessage!, isError: true);
@@ -708,6 +718,177 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
               await ref.read(authProvider.notifier).signOut();
               if (context.mounted) {
                 SnackBarFormat().show(context, "Sesión cerrada");
+              }
+            },
+          ),
+          AppSpacing.heightMedium,
+
+          // Sección de pruebas de Workspace
+          ContainerFormat(
+            children: [
+              TextFormat.subtitle("Workspace Actual"),
+              AppSpacing.heightSmall,
+              TextFormat.body(
+                workspaceState.workspace != null &&
+                        workspaceState.workspace!.clubs.isNotEmpty
+                    ? "Club: ${workspaceState.workspace!.clubs.first.clubName} (${workspaceState.workspace!.clubs.first.clubId})"
+                    : "Workspace: Sin cargar",
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // Obtener Contexto (GET /workspace/context)
+          ButtonFormat.primary(
+            label: "W1. Obtener Contexto (/workspace/context)",
+            isLoading: workspaceState.isLoading,
+            onPressed: () async {
+              await ref.read(workspaceProvider.notifier).getContext();
+              final ws = ref.read(workspaceProvider).workspace;
+              if (ws != null && ws.clubs.isNotEmpty) {
+                _authClubIdController.text = ws.clubs.first.clubId;
+                if (context.mounted) {
+                  SnackBarFormat().show(
+                    context,
+                    "Club activo: ${ws.clubs.first.clubName}",
+                  );
+                }
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Listar Membresías (GET /workspace/clubs/{clubId}/memberships)
+          ButtonFormat.secondary(
+            label: "W2. Membresías del Club (/memberships)",
+            onPressed: () async {
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .listClubMemberships(
+                    clubId: _authClubIdController.text.trim(),
+                  );
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Total miembros: ${data['total']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Listar Campañas (GET /workspace/clubs/{clubId}/campaigns)
+          ButtonFormat.secondary(
+            label: "W3. Campañas del Club (/campaigns)",
+            onPressed: () async {
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .listClubCampaigns(clubId: _authClubIdController.text.trim());
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Total campañas: ${data['total']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Listar Grupos de Campaña (GET /workspace/campaigns/{campaignId}/groups)
+          ButtonFormat.secondary(
+            label: "W4. Grupos de Campaña (/campaigns/{id}/groups)",
+            onPressed: () async {
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .listCampaignGroups(
+                    campaignId: _authCodeController.text.trim(),
+                  );
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Total grupos: ${data['total']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Listar Programas de Capacitación (GET /workspace/clubs/{clubId}/training-programs)
+          ButtonFormat.secondary(
+            label: "W5. Programas Capacitación (/training-programs)",
+            onPressed: () async {
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .listClubTrainingPrograms(
+                    clubId: _authClubIdController.text.trim(),
+                  );
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Total programas: ${data['total']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Listar Roles del Club (GET /workspace/clubs/{clubId}/roles)
+          ButtonFormat.secondary(
+            label: "W6. Roles del Club (/roles)",
+            onPressed: () async {
+              final roles = await ref
+                  .read(workspaceProvider.notifier)
+                  .listClubRoles(clubId: _authClubIdController.text.trim());
+              if (context.mounted && roles != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Roles disponibles: ${roles.length}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Asignar Rol (POST /workspace/clubs/{clubId}/access-assignments)
+          ButtonFormat.secondary(
+            label: "W7. Asignar Rol (/access-assignments)",
+            onPressed: () async {
+              final accountId =
+                  ref.read(authProvider).user?.id ??
+                  _authCodeController.text.trim();
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .assignClubRole(
+                    clubId: _authClubIdController.text.trim(),
+                    accountId: accountId,
+                    roleCode: "TRAINING_COORDINATOR",
+                    reason: "Asignación desde móvil",
+                  );
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Asignación: ${data['accessAssignmentId']}",
+                );
+              }
+            },
+          ),
+          AppSpacing.heightSmall,
+
+          // Revocar Rol (POST /workspace/access-assignments/{id}/revoke)
+          ButtonFormat.secondary(
+            label: "W8. Revocar Rol (/access-assignments/{id}/revoke)",
+            onPressed: () async {
+              final data = await ref
+                  .read(workspaceProvider.notifier)
+                  .revokeAccessAssignment(
+                    accessAssignmentId: _authCodeController.text.trim(),
+                    reason: "Revocación desde móvil",
+                  );
+              if (context.mounted && data != null) {
+                SnackBarFormat().show(
+                  context,
+                  "Estado: ${data['status']}",
+                );
               }
             },
           ),
