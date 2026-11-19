@@ -101,7 +101,29 @@ class _LogoFormart extends StatelessWidget {
                 foregroundColor: context.colorScheme.onSurface,
                 child: AppIcon.person,
               ),
-              AppIcon.edit,
+              Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: context.colorScheme.surface,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: context.colorScheme.background,
+                      width: 2,
+                    ),
+                  ),
+                  child: const IconTheme(
+                    data: IconThemeData(color: Colors.white, size: 14),
+                    child: SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: FittedBox(child: AppIcon.edit),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

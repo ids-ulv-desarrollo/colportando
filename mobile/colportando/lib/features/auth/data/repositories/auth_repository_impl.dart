@@ -36,6 +36,7 @@ class AuthRepositoryImpl implements IAuthRepository {
   }
 
   Future<void> _clearTokens() async {
+    SecureStorage.accessToken = null;
     _refreshToken = null;
     await SecureStorage.clearRefreshToken();
   }
@@ -64,7 +65,10 @@ class AuthRepositoryImpl implements IAuthRepository {
     final result = await remoteDataSource.refreshSession(
       refreshToken: refreshToken,
     );
-    if (result.isFailure) return Result.failure(result.error);
+    if (result.isFailure) {
+      await _clearTokens();
+      return Result.failure(result.error);
+    }
 
     await _saveTokens(result.data!);
     return const Result.success(null);

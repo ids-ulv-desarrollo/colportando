@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.system,
       theme: GlobalTheme.themeLight,
       darkTheme: GlobalTheme.themeDark,
-      initialRoute: GlobalRoute.mainNavigation,
+      initialRoute: GlobalRoute.initial,
       routes: GlobalRoute.routes,
     );
   }

@@ -18,6 +18,7 @@ class GlobalTheme {
     ),
 
     colorScheme: const ColorScheme.light(
+      background: AppColor.background,
       // Para componentes y acciones principales.
       primary: AppColor.primary,
       // Para texto e íconos sobre componentes y acciones principales.
@@ -273,6 +274,7 @@ class GlobalTheme {
     ),
 
     colorScheme: const ColorScheme.dark(
+      background: AppColor.backgroundDark,
       // Para componentes y acciones principales.
       primary: AppColor.primary,
       // Para texto e íconos sobre componentes y acciones principales.

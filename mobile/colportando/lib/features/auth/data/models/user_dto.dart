@@ -10,14 +10,10 @@ abstract class UserDto with _$UserDto {
   const UserDto._();
 
   const factory UserDto({
-    @JsonKey(name: "accountId") required String id,
-    @Default('') String name,
+    required String accountId,
     required String email,
-    String? role,
-    String? status,
-    String? token,
-    @JsonKey(name: "created_at") DateTime? createdAt,
-    @JsonKey(name: "deleted_at") DateTime? deletedAt,
+    required String status,
+    required String sessionId,
   }) = _UserDto;
 
   // Se conecta la generación automática de fromJson y toJson.
@@ -26,13 +22,9 @@ abstract class UserDto with _$UserDto {
 
   // Convierte el DTO en la entidad pura del dominio.
   User toEntity() => User(
-    id: id,
-    name: name,
+    accountId: accountId,
     email: email,
-    role: role,
     status: status,
-    token: token,
-    createdAt: createdAt,
-    deletedAt: deletedAt,
+    sessionId: sessionId,
   );
 }

@@ -4,8 +4,8 @@ import 'package:colportando/core/widgets/bottom_bar_format.dart';
 import 'package:colportando/core/widgets/drawer_format.dart';
 import 'package:colportando/core/widgets/exit_confirmation_format.dart';
 import 'package:colportando/core/widgets/side_bar_format.dart';
-import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
+import 'package:colportando/features/workspace/presentation/riverpod/workspace_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -46,8 +46,11 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final isTablet = AppBreakpoint.isTablet(context);
-    final role = ref.watch(authProvider).user?.role;
-    // final role = "colportor";
+    final clubs = ref.watch(workspaceProvider).workspace?.clubs;
+    final activeClub = (clubs != null && clubs.isNotEmpty) ? clubs.first : null;
+    final role = activeClub != null && activeClub.roles.isNotEmpty
+        ? activeClub.roles.first['code'] as String?
+        : activeClub?.membership?['condition'] as String?;
     final items = widget.items ?? RoleNavigationConfig.getItems(role);
     final screens = widget.screens ?? RoleNavigationConfig.getScreens(role);
     final drawerItems = RoleNavigationConfig.getDrawerItems(context, role);

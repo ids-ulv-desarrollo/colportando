@@ -10,6 +10,7 @@ part 'auth_riverpod.freezed.dart';
 @freezed
 abstract class AuthState with _$AuthState {
   const factory AuthState({
+    @Default(true) bool isInitializing,
     @Default(false) bool isLoading,
     String? errorMessage,
     @Default(false) bool isAuthenticated,
@@ -20,7 +21,27 @@ abstract class AuthState with _$AuthState {
 // Notificador que gestiona el estado y las acciones de autenticación.
 class AuthNotifier extends Notifier<AuthState> {
   @override
-  AuthState build() => const AuthState();
+  AuthState build() {
+    Future.microtask(restoreSession);
+    return const AuthState();
+  }
+
+  // Restaura la sesión activa al iniciar la aplicación.
+  Future<void> restoreSession() async {
+    final result = await ref.read(getMeUsecaseProvider)();
+    if (result.isSuccess) {
+      state = state.copyWith(
+        isInitializing: false,
+        isAuthenticated: true,
+        user: result.data,
+      );
+    } else {
+      state = state.copyWith(
+        isInitializing: false,
+        isAuthenticated: false,
+      );
+    }
+  }
 
   // Ejecuta una acción asíncrona que no retorna entidad actualizando carga y error.
   Future<bool> _runAction(Future<Result<dynamic>> Function() action) async {
@@ -181,7 +202,7 @@ class AuthNotifier extends Notifier<AuthState> {
   // Revoca la sesión en el servidor, limpia almacenamiento seguro y reinicia el estado.
   Future<void> signOut() async {
     await ref.read(logoutUsecaseProvider)();
-    state = const AuthState();
+    state = const AuthState(isInitializing: false);
   }
 }
 

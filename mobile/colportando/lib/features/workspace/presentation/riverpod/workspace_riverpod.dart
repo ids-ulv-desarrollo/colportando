@@ -1,3 +1,4 @@
+import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
 import 'package:colportando/features/workspace/domain/entities/workspace.dart';
 import 'package:colportando/features/workspace/presentation/riverpod/workspace_di.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -18,7 +19,12 @@ abstract class WorkspaceState with _$WorkspaceState {
 // Notificador que gestiona el estado y las acciones de workspace.
 class WorkspaceNotifier extends Notifier<WorkspaceState> {
   @override
-  WorkspaceState build() => const WorkspaceState();
+  WorkspaceState build() {
+    if (ref.watch(authProvider.select((s) => s.isAuthenticated))) {
+      Future.microtask(getContext);
+    }
+    return const WorkspaceState();
+  }
 
   // Consulta el contexto de clubes, membresías y roles del usuario autenticado.
   Future<void> getContext() async {

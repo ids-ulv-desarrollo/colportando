@@ -69,6 +69,13 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // No redibuja la vista; se ejecuta algo puntual (mostrar alertas) cuando el estado cambia.
+    ref.listen<AuthState>(authProvider, (previous, next) {
+      if (next.errorMessage != null) {
+        SnackBarFormat().show(context, next.errorMessage!, isError: true);
+      }
+    });
+
     final authState = ref.watch(authProvider);
 
     return ScaffoldFormat(

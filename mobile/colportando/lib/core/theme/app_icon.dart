@@ -35,7 +35,7 @@ class AppIcon {
   );
   static const Widget search = HugeIcon(icon: HugeIcons.strokeRoundedSearch01);
   static const Widget cancel = HugeIcon(icon: HugeIcons.strokeRoundedCancel01);
-  static const Widget edit = HugeIcon(icon: HugeIcons.strokeRoundedEdit02);
+  static const Widget edit = HugeIcon(icon: HugeIcons.strokeRoundedEdit03);
 
   // Operaciones y multimedia
   static const Widget add = HugeIcon(icon: HugeIcons.strokeRoundedPlusSign);

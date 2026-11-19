@@ -6,6 +6,7 @@ import 'package:colportando/features/auth/presentation/screens/inspect_invitatio
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/signin_screen.dart';
+import 'package:colportando/features/auth/presentation/widgets/auth_gate.dart';
 import 'package:colportando/features/campaigns/presentation/screens/add_campign_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/edit_campign_screen.dart';
@@ -53,7 +54,8 @@ class GlobalRoute {
   static const String pruebaWidgets = "/prueba_widgets";
 
   static Map<String, WidgetBuilder> routes = {
-    // Recibe la invitación consultada; si falta o no es válida, la pantalla ofrece consultarla.
+    initial: (context) => const AuthGate(),
+     // Recibe la invitación consultada; si falta o no es válida, la pantalla ofrece consultarla.
     signup: (context) {
       final arguments = ModalRoute.of(context)?.settings.arguments;
       return SignupScreen(

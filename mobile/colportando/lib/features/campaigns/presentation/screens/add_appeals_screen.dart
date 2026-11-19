@@ -71,7 +71,7 @@ class _AppealFormScreenState extends ConsumerState<AppealFormScreen> {
         else ...[
           TextFormat.label("Solicitante"),
           AppSpacing.heightSmall,
-          TextFormat.body(user.name),
+          TextFormat.body(user.email),
         ],
         AppSpacing.heightMedium,
         DropdownFormat<String>(
@@ -128,8 +128,8 @@ class _AppealFormScreenState extends ConsumerState<AppealFormScreen> {
         ButtonFormat.primary(
           label: "Realizar apelación",
           onPressed: () => _confirmAppeal(
-            user?.id ?? unauthenticatedAppealUserId,
-            user?.name ?? _userNameController.text.trim(),
+            user?.accountId ?? unauthenticatedAppealUserId,
+            user?.email ?? _userNameController.text.trim(),
           ),
         ),
         ButtonFormat.secondary(
