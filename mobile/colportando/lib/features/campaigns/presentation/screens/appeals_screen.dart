@@ -20,7 +20,7 @@ class AppealsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final user = ref.watch(authProvider).user;
-    final userId = user?.id ?? unauthenticatedAppealUserId;
+    final userId = user?.accountId ?? unauthenticatedAppealUserId;
     final appeals = ref
         .watch(appealsProvider)
         .where((appeal) => appeal.userId == userId)
