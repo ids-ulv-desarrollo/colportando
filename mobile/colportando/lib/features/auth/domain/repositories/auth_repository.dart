@@ -1,4 +1,5 @@
 import 'package:colportando/core/error/result.dart';
+import 'package:colportando/features/auth/domain/entities/invitation.dart';
 import 'package:colportando/features/auth/domain/entities/user.dart';
 
 abstract class IAuthRepository {
@@ -25,17 +26,18 @@ abstract class IAuthRepository {
     required String newPassword,
   });
 
-  Future<Result<Map<String, dynamic>>> createInvitation({
+  Future<Result<InvitationReceipt>> createInvitation({
     required String clubId,
     required String email,
+    String? idempotencyKey,
   });
 
-  Future<Result<Map<String, dynamic>>> inspectInvitation({
+  Future<Result<InvitationPreview>> inspectInvitation({
     required String email,
     required String code,
   });
 
-  Future<Result<Map<String, dynamic>>> acceptInvitation({
+  Future<Result<InvitationAcceptance>> acceptInvitation({
     required String email,
     required String code,
     required String password,
@@ -43,5 +45,6 @@ abstract class IAuthRepository {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
+    String? idempotencyKey,
   });
 }

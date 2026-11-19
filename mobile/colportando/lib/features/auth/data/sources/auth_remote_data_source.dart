@@ -1,5 +1,6 @@
 import 'package:colportando/core/error/result.dart';
 import 'package:colportando/core/network/api_client.dart';
+import 'package:colportando/features/auth/data/models/invitation_dto.dart';
 import 'package:colportando/features/auth/data/models/user_dto.dart';
 
 abstract class IAuthRemoteDataSource {
@@ -31,18 +32,19 @@ abstract class IAuthRemoteDataSource {
     required String newPassword,
   });
 
-  Future<Result<Map<String, dynamic>>> createInvitation({
+  Future<Result<InvitationReceiptDto>> createInvitation({
     required String accessToken,
     required String clubId,
     required String email,
+    String? idempotencyKey,
   });
 
-  Future<Result<Map<String, dynamic>>> inspectInvitation({
+  Future<Result<InvitationPreviewDto>> inspectInvitation({
     required String email,
     required String code,
   });
 
-  Future<Result<Map<String, dynamic>>> acceptInvitation({
+  Future<Result<InvitationAcceptanceDto>> acceptInvitation({
     required String email,
     required String code,
     required String password,
@@ -50,6 +52,7 @@ abstract class IAuthRemoteDataSource {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
+    String? idempotencyKey,
   });
 }
 
@@ -124,29 +127,33 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
   );
 
   @override
-  Future<Result<Map<String, dynamic>>> createInvitation({
+  Future<Result<InvitationReceiptDto>> createInvitation({
     required String accessToken,
     required String clubId,
     required String email,
-  }) => _apiClient.post<Map<String, dynamic>>(
+    String? idempotencyKey,
+  }) => _apiClient.post<InvitationReceiptDto>(
     '/auth/invitations',
     token: accessToken,
     body: {'clubId': clubId, 'email': email},
-    fromJson: (json) => json as Map<String, dynamic>,
+    fromJson: (json) =>
+        InvitationReceiptDto.fromJson(json as Map<String, dynamic>),
+    idempotencyKey: idempotencyKey,
   );
 
   @override
-  Future<Result<Map<String, dynamic>>> inspectInvitation({
+  Future<Result<InvitationPreviewDto>> inspectInvitation({
     required String email,
     required String code,
-  }) => _apiClient.post<Map<String, dynamic>>(
+  }) => _apiClient.post<InvitationPreviewDto>(
     '/auth/invitations/inspect',
     body: {'email': email, 'code': code},
-    fromJson: (json) => json as Map<String, dynamic>,
+    fromJson: (json) =>
+        InvitationPreviewDto.fromJson(json as Map<String, dynamic>),
   );
 
   @override
-  Future<Result<Map<String, dynamic>>> acceptInvitation({
+  Future<Result<InvitationAcceptanceDto>> acceptInvitation({
     required String email,
     required String code,
     required String password,
@@ -154,7 +161,8 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
-  }) => _apiClient.post<Map<String, dynamic>>(
+    String? idempotencyKey,
+  }) => _apiClient.post<InvitationAcceptanceDto>(
     '/auth/invitations/accept',
     body: {
       'email': email,
@@ -165,6 +173,8 @@ class AuthRemoteDataSource implements IAuthRemoteDataSource {
       'secondFamilyName': ?secondFamilyName,
       'phoneE164': ?phoneE164,
     },
-    fromJson: (json) => json as Map<String, dynamic>,
+    fromJson: (json) =>
+        InvitationAcceptanceDto.fromJson(json as Map<String, dynamic>),
+    idempotencyKey: idempotencyKey,
   );
 }

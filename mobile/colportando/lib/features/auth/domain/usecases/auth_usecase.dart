@@ -1,4 +1,5 @@
 import 'package:colportando/core/error/result.dart';
+import 'package:colportando/features/auth/domain/entities/invitation.dart';
 import 'package:colportando/features/auth/domain/entities/user.dart';
 import 'package:colportando/features/auth/domain/repositories/auth_repository.dart';
 
@@ -85,10 +86,15 @@ class CreateInvitationUsecase {
 
   const CreateInvitationUsecase({required this.repository});
 
-  Future<Result<Map<String, dynamic>>> call({
+  Future<Result<InvitationReceipt>> call({
     required String clubId,
     required String email,
-  }) => repository.createInvitation(clubId: clubId, email: email);
+    String? idempotencyKey,
+  }) => repository.createInvitation(
+    clubId: clubId,
+    email: email,
+    idempotencyKey: idempotencyKey,
+  );
 }
 
 class InspectInvitationUsecase {
@@ -96,7 +102,7 @@ class InspectInvitationUsecase {
 
   const InspectInvitationUsecase({required this.repository});
 
-  Future<Result<Map<String, dynamic>>> call({
+  Future<Result<InvitationPreview>> call({
     required String email,
     required String code,
   }) => repository.inspectInvitation(email: email, code: code);
@@ -107,7 +113,7 @@ class AcceptInvitationUsecase {
 
   const AcceptInvitationUsecase({required this.repository});
 
-  Future<Result<Map<String, dynamic>>> call({
+  Future<Result<InvitationAcceptance>> call({
     required String email,
     required String code,
     required String password,
@@ -115,6 +121,7 @@ class AcceptInvitationUsecase {
     required String familyName,
     String? secondFamilyName,
     String? phoneE164,
+    String? idempotencyKey,
   }) => repository.acceptInvitation(
     email: email,
     code: code,
@@ -123,5 +130,6 @@ class AcceptInvitationUsecase {
     familyName: familyName,
     secondFamilyName: secondFamilyName,
     phoneE164: phoneE164,
+    idempotencyKey: idempotencyKey,
   );
 }

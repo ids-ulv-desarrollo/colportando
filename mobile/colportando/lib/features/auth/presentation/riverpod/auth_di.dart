@@ -1,6 +1,8 @@
 import 'package:colportando/core/network/api_client.dart';
+import 'package:colportando/features/auth/data/models/invitation_dto.dart';
 import 'package:colportando/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:colportando/features/auth/data/sources/auth_remote_data_source.dart';
+import 'package:colportando/features/auth/domain/entities/invitation.dart';
 import 'package:colportando/features/auth/domain/repositories/auth_repository.dart';
 import 'package:colportando/features/auth/domain/usecases/auth_usecase.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -85,3 +87,23 @@ final acceptInvitationUsecaseProvider = Provider<AcceptInvitationUsecase>((
     repository: ref.watch(_authRepositoryProvider),
   );
 });
+
+// Conversiones de compatibilidad para los métodos Map de la demo; la implementación vive en data.
+final invitationReceiptToMapProvider =
+    Provider<Map<String, dynamic> Function(InvitationReceipt receipt)>(
+      (ref) =>
+          (receipt) => InvitationReceiptDto.fromEntity(receipt).toJson(),
+    );
+
+final invitationPreviewToMapProvider =
+    Provider<Map<String, dynamic> Function(InvitationPreview preview)>(
+      (ref) =>
+          (preview) => InvitationPreviewDto.fromEntity(preview).toJson(),
+    );
+
+final invitationAcceptanceToMapProvider =
+    Provider<Map<String, dynamic> Function(InvitationAcceptance acceptance)>(
+      (ref) =>
+          (acceptance) =>
+              InvitationAcceptanceDto.fromEntity(acceptance).toJson(),
+    );

@@ -111,7 +111,7 @@ class AuthNotifier extends Notifier<AuthState> {
     ),
   );
 
-  // Invita a un aspirante a un club (rol directiva).
+  // Adaptador de compatibilidad para la demo: conserva firma y resultado Map; comparte el caso de uso.
   Future<Map<String, dynamic>?> createInvitation({
     required String clubId,
     required String email,
@@ -125,10 +125,12 @@ class AuthNotifier extends Notifier<AuthState> {
       isLoading: false,
       errorMessage: result.isFailure ? result.error : null,
     );
-    return result.data;
+    return result.isSuccess
+        ? ref.read(invitationReceiptToMapProvider)(result.data!)
+        : null;
   }
 
-  // Verifica los datos de una invitación por correo y código.
+  // Adaptador de compatibilidad para la demo: conserva firma y resultado Map; comparte el caso de uso.
   Future<Map<String, dynamic>?> inspectInvitation({
     required String email,
     required String code,
@@ -142,10 +144,12 @@ class AuthNotifier extends Notifier<AuthState> {
       isLoading: false,
       errorMessage: result.isFailure ? result.error : null,
     );
-    return result.data;
+    return result.isSuccess
+        ? ref.read(invitationPreviewToMapProvider)(result.data!)
+        : null;
   }
 
-  // Registra al aspirante aceptando la invitación del club.
+  // Adaptador de compatibilidad para la demo: conserva firma y resultado Map; comparte el caso de uso.
   Future<Map<String, dynamic>?> acceptInvitation({
     required String email,
     required String code,
@@ -169,7 +173,9 @@ class AuthNotifier extends Notifier<AuthState> {
       isLoading: false,
       errorMessage: result.isFailure ? result.error : null,
     );
-    return result.data;
+    return result.isSuccess
+        ? ref.read(invitationAcceptanceToMapProvider)(result.data!)
+        : null;
   }
 
   // Revoca la sesión en el servidor, limpia almacenamiento seguro y reinicia el estado.
