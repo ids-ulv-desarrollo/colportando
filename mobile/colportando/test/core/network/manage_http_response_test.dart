@@ -12,19 +12,19 @@ void main() {
     expect(result.statusCode, isNull);
   });
 
-  test('un error conserva el mensaje anterior y añade el código HTTP', () {
+  // manageHttpResponse no adjunta el código HTTP a las fallas; solo devuelve el mensaje.
+  test('un error conserva el mensaje del servidor sin código HTTP', () {
     final result = manageHttpResponse<void>(
       response: http.Response('{"error":{"message":"Invalid request."}}', 400),
     );
     expect(result.error, 'Invalid request.');
-    expect(result.statusCode, 400);
-    expect(result.isOutcomeUnknown, isFalse);
+    expect(result.statusCode, isNull);
   });
 
-  test('un 401 sin mensaje conserva el texto anterior', () {
+  test('un 401 sin mensaje conserva el texto anterior sin código HTTP', () {
     final result = manageHttpResponse<void>(response: http.Response('', 401));
     expect(result.error, 'Sesión expirada o no autorizada.');
-    expect(result.statusCode, 401);
+    expect(result.statusCode, isNull);
   });
 
   test('un 5xx sin mensaje conserva el texto anterior y queda como incierto', () {

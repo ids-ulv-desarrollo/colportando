@@ -65,7 +65,8 @@ void main() {
       expect(result.data?.expiresAt, DateTime.utc(2026, 11, 26, 18));
     });
 
-    test('traduce 403 y lo trata como respuesta definitiva', () async {
+    // manageHttpResponse no adjunta el código HTTP, así que el repositorio conserva el mensaje del servidor.
+    test('un 403 conserva el mensaje del servidor', () async {
       final repository = createRepository(
         403,
         errorBody('Missing invitation permission.'),
@@ -74,9 +75,9 @@ void main() {
         clubId: 'club-1',
         email: 'aspirante@ejemplo.com',
       );
-      expect(result.error, 'Tu cuenta no tiene permiso para invitar en este club.');
-      expect(result.statusCode, 403);
-      expect(result.isOutcomeUnknown, isFalse);
+      expect(result.isFailure, isTrue);
+      expect(result.error, 'Missing invitation permission.');
+      expect(result.statusCode, isNull);
     });
 
     test('un 5xx conserva el mensaje del servidor y queda como incierto', () async {
@@ -118,14 +119,15 @@ void main() {
       expect(result.data?.emailHint, 'a***@ejemplo.com');
     });
 
-    test('traduce 404', () async {
+    test('un 404 conserva el mensaje del servidor', () async {
       final repository = createRepository(404, errorBody('Invitation unavailable.'));
       final result = await repository.inspectInvitation(
         email: 'aspirante@ejemplo.com',
         code: 'ABCD-1234-EFGH',
       );
-      expect(result.error, 'La invitación no está disponible. Revisa el correo y el código.');
-      expect(result.statusCode, 404);
+      expect(result.isFailure, isTrue);
+      expect(result.error, 'Invitation unavailable.');
+      expect(result.statusCode, isNull);
     });
   });
 
@@ -157,7 +159,7 @@ void main() {
       expect(result.data?.memberCondition, 'ASPIRANT');
     });
 
-    test('traduce 409', () async {
+    test('un 409 conserva el mensaje del servidor', () async {
       final repository = createRepository(
         409,
         errorBody('Invitation or idempotency conflict.'),
@@ -169,11 +171,9 @@ void main() {
         givenNames: 'Ana',
         familyName: 'Pérez',
       );
-      expect(
-        result.error,
-        'La invitación ya no puede aceptarse o la solicitud no coincide con un intento anterior.',
-      );
-      expect(result.statusCode, 409);
+      expect(result.isFailure, isTrue);
+      expect(result.error, 'Invitation or idempotency conflict.');
+      expect(result.statusCode, isNull);
     });
   });
 }
