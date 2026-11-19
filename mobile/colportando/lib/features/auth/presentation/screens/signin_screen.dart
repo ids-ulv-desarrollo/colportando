@@ -1,3 +1,4 @@
+import 'package:colportando/core/constants/strings_constants.dart';
 import 'package:colportando/core/router/global_route.dart';
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
@@ -29,31 +30,45 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
     super.dispose();
   }
 
-  // Método para manejar el inicio de sesión.
-  void _handleLogin() => ref
-      .read(authProvider.notifier)
-      .login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
+  // Envía las credenciales una sola vez y reacciona solo al resultado de este intento.
+  Future<void> _handleLogin() async {
+    if (ref.read(authProvider).isLoading) return;
+    await ref
+        .read(authProvider.notifier)
+        .login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
+    if (!mounted || ModalRoute.of(context)?.isCurrent != true) return;
+
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated) {
+      Navigator.pushNamedAndRemoveUntil(
+        context,
+        GlobalRoute.mainNavigation,
+        (route) => false,
       );
+    } else if (authState.errorMessage != null) {
+      SnackBarFormat().show(context, authState.errorMessage!, isError: true);
+    }
+  }
+
+  // Abre la solicitud del código de recuperación.
+  void _handleForgotPassword() =>
+      Navigator.pushNamed(context, GlobalRoute.forgotPassword);
+
+  // Inicia el registro por invitación consultando primero el correo y el código.
+  void _handleCreateAccount() {
+    if (ref.read(authProvider).isLoading) return;
+    Navigator.pushNamed(context, GlobalRoute.inspectInvitation);
+  }
+
+  // Exige al menos un carácter sin recortar espacios; la complejidad se valida al crear o cambiar la contraseña.
+  String? _validatePassword(String? value) =>
+      (value == null || value.isEmpty) ? StringsConstants.campoRequerido : null;
 
   @override
   Widget build(BuildContext context) {
-    // No redibuja la vista; se ejecuta algo puntual (mostrar alertas o navegar) cuando el estado cambia.
-    ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.errorMessage != null) {
-        SnackBarFormat().show(context, next.errorMessage!, isError: true);
-      }
-      if (next.isAuthenticated) {
-        // Navegación al completar la autenticación.
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          GlobalRoute.mainNavigation,
-          (route) => false,
-        );
-      }
-    });
-
     final authState = ref.watch(authProvider);
 
     return ScaffoldFormat(
@@ -66,8 +81,8 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           hintText: "correo@ejemplo.com",
           prefixIcon: AppIcon.email,
           keyboardType: TextInputType.emailAddress,
-          maxLength: 100,
-          validator: GlobalValidator.validateEmail,
+          maxLength: 320,
+          validator: (value) => GlobalValidator.validateEmail(value?.trim()),
         ),
         AppSpacing.heightMedium,
         InputTextFormart(
@@ -75,23 +90,28 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           labelText: "Contraseña",
           hintText: "••••••••",
           prefixIcon: AppIcon.password,
-          maxLength: 50,
+          maxLength: 256,
+          validator: _validatePassword,
+        ),
+        // Enlace alineado a la derecha; se desactiva mientras hay una operación en curso.
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: authState.isLoading ? null : _handleForgotPassword,
+            child: const Text("¿Olvidaste tu contraseña?"),
+          ),
         ),
         AppSpacing.heightMedium,
         ButtonFormat.primary(
-          icon: AppIcon.doneAll,
           label: "Iniciar Sesión",
           formKey: _formKey,
           isLoading: authState.isLoading,
           onPressed: _handleLogin,
         ),
-        AppSpacing.heightMedium,
-        Row(
-          mainAxisAlignment: .spaceEvenly,
-          children: [
-            ButtonFormat.icon(icon: AppIcon.google, onPressed: _handleLogin),
-            ButtonFormat.icon(icon: AppIcon.ios, onPressed: _handleLogin),
-          ],
+        AppSpacing.heightSmall,
+        ButtonFormat.text(
+          label: "Crear cuenta",
+          onPressed: _handleCreateAccount,
         ),
       ],
     );

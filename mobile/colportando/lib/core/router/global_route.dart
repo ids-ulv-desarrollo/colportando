@@ -1,6 +1,10 @@
 import 'package:colportando/core/router/imports.dart';
 import 'package:colportando/core/screens/main_navigation_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/create_invitation_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/inspect_invitation_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/signin_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/add_campign_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
@@ -21,6 +25,8 @@ class GlobalRoute {
   static const String resetPassword = "/reset_password";
   static const String forgotPassword = "/forgot_password";
   static const String confirmation = "/confirmation";
+  static const String inspectInvitation = "/inspect_invitation";
+  static const String createInvitation = "/create_invitation";
 
   static const String notifications = "/notifications";
 
@@ -47,8 +53,22 @@ class GlobalRoute {
   static const String pruebaWidgets = "/prueba_widgets";
 
   static Map<String, WidgetBuilder> routes = {
-    signup: (context) => const SignupScreen(),
+    // Recibe la invitación consultada; si falta o no es válida, la pantalla ofrece consultarla.
+    signup: (context) {
+      final arguments = ModalRoute.of(context)?.settings.arguments;
+      return SignupScreen(
+        arguments: arguments is SignupArguments ? arguments : null,
+      );
+    },
     signin: (context) => const SigninScreen(),
+    inspectInvitation: (context) => const InspectInvitationScreen(),
+    createInvitation: (context) => const CreateInvitationScreen(),
+    forgotPassword: (context) => const ForgotPasswordScreen(),
+    // Recibe el correo de la solicitud como argumento; si falta, la pantalla ofrece pedir un código.
+    resetPassword: (context) {
+      final email = ModalRoute.of(context)?.settings.arguments;
+      return ResetPasswordScreen(email: email is String ? email : null);
+    },
     mainNavigation: (context) => const MainNavigationScreen(),
     profile: (context) => const ProfileScreen(),
     notifications: (context) => const NotificationScreen(),
