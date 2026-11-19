@@ -25,6 +25,7 @@ import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/tab_bar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
 import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
+import 'package:colportando/features/catalog/presentation/riverpod/catalog_riverpod.dart';
 import 'package:colportando/features/workspace/presentation/riverpod/workspace_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -69,6 +70,72 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
   final TextEditingController _authFamilyNameController = TextEditingController(
     text: "Pérez",
   );
+
+  // Controladores de texto para pruebas de Workspace.
+  final TextEditingController _wsClubIdController = TextEditingController();
+  final TextEditingController _wsCampaignIdController = TextEditingController();
+  final TextEditingController _wsAccountIdController = TextEditingController();
+  final TextEditingController _wsRoleCodeController = TextEditingController(
+    text: "TRAINING_COORDINATOR",
+  );
+  final TextEditingController _wsReasonController = TextEditingController(
+    text: "Asignación desde app móvil",
+  );
+  final TextEditingController _wsAccessAssignmentIdController =
+      TextEditingController();
+
+  // Controladores de texto para pruebas de Catálogos y Materiales.
+  final TextEditingController _materialClubIdController =
+      TextEditingController();
+  final TextEditingController _materialCodeController = TextEditingController(
+    text: "LIB-001",
+  );
+  final TextEditingController _materialNameController = TextEditingController(
+    text: "El Deseado de Todas las Gentes",
+  );
+  final TextEditingController _materialCategoryController =
+      TextEditingController(text: "Libros");
+  final TextEditingController _materialDescController = TextEditingController(
+    text: "Edición tapa dura estándar",
+  );
+
+  final TextEditingController _catalogCampaignIdController =
+      TextEditingController();
+  final TextEditingController _catalogNameController = TextEditingController(
+    text: "Catálogo Oficial Verano",
+  );
+  final TextEditingController _catalogSourceTypeController =
+      TextEditingController(text: "MANUAL");
+  final TextEditingController _catalogSourceNameController =
+      TextEditingController(text: "Editorial IADPA");
+  final TextEditingController _catalogCurrencyController =
+      TextEditingController(text: "MXN");
+
+  final TextEditingController _catalogIdController = TextEditingController();
+  final TextEditingController _catalogMaterialIdController =
+      TextEditingController();
+  final TextEditingController _catalogListPriceController =
+      TextEditingController(text: "250.00");
+  final TextEditingController _catalogStatusController = TextEditingController(
+    text: "ACTIVE",
+  );
+
+  final TextEditingController _acqParticipationIdController =
+      TextEditingController();
+  final TextEditingController _acqCatalogItemIdController =
+      TextEditingController();
+  final TextEditingController _acqQuantityController = TextEditingController(
+    text: "1",
+  );
+  final TextEditingController _acqIdController = TextEditingController();
+  final TextEditingController _acqStatusController = TextEditingController(
+    text: "DELIVERED",
+  );
+  final TextEditingController _acqResolutionController = TextEditingController(
+    text: "Entrega presencial confirmada",
+  );
+  final TextEditingController _materialSearchController =
+      TextEditingController();
 
   DateTime? _selectedDate;
   int _selectedTabIndex = 0; // 0: Formulario, 1: Colportor, 2: Endpoints
@@ -141,6 +208,38 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
     _authCodeController.dispose();
     _authGivenNamesController.dispose();
     _authFamilyNameController.dispose();
+
+    _wsClubIdController.dispose();
+    _wsCampaignIdController.dispose();
+    _wsAccountIdController.dispose();
+    _wsRoleCodeController.dispose();
+    _wsReasonController.dispose();
+    _wsAccessAssignmentIdController.dispose();
+
+    _materialClubIdController.dispose();
+    _materialCodeController.dispose();
+    _materialNameController.dispose();
+    _materialCategoryController.dispose();
+    _materialDescController.dispose();
+
+    _catalogCampaignIdController.dispose();
+    _catalogNameController.dispose();
+    _catalogSourceTypeController.dispose();
+    _catalogSourceNameController.dispose();
+    _catalogCurrencyController.dispose();
+
+    _catalogIdController.dispose();
+    _catalogMaterialIdController.dispose();
+    _catalogListPriceController.dispose();
+    _catalogStatusController.dispose();
+
+    _acqParticipationIdController.dispose();
+    _acqCatalogItemIdController.dispose();
+    _acqQuantityController.dispose();
+    _acqIdController.dispose();
+    _acqStatusController.dispose();
+    _acqResolutionController.dispose();
+    _materialSearchController.dispose();
     super.dispose();
   }
 
@@ -192,6 +291,7 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
     final filteredList = _filteredUsers;
     final authState = ref.watch(authProvider);
     final workspaceState = ref.watch(workspaceProvider);
+    final catalogState = ref.watch(catalogProvider);
 
     // Muestra notificaciones cuando el estado de autenticación reporte errores.
     ref.listen<AuthState>(authProvider, (previous, next) {
@@ -203,6 +303,14 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
 
     // Muestra notificaciones cuando el estado de workspace reporte errores.
     ref.listen<WorkspaceState>(workspaceProvider, (previous, next) {
+      if (next.errorMessage != null &&
+          next.errorMessage != previous?.errorMessage) {
+        SnackBarFormat().show(context, next.errorMessage!, isError: true);
+      }
+    });
+
+    // Muestra notificaciones cuando el estado de catálogo reporte errores.
+    ref.listen<CatalogState>(catalogProvider, (previous, next) {
       if (next.errorMessage != null &&
           next.errorMessage != previous?.errorMessage) {
         SnackBarFormat().show(context, next.errorMessage!, isError: true);
@@ -497,229 +605,433 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
               ),
             ],
           ),
-          AppSpacing.heightMedium,
-          InputTextFormart(
-            controller: _authEmailController,
-            prefixIcon: AppIcon.email,
-            labelText: "Correo Electrónico",
-            hintText: "correo@ejemplo.com",
-            maxLength: 100,
-          ),
           AppSpacing.heightSmall,
-          InputTextFormart(
-            controller: _authPasswordController,
-            prefixIcon: AppIcon.password,
-            labelText: "Contraseña",
-            hintText: "••••••••",
-            maxLength: 50,
-          ),
-          AppSpacing.heightSmall,
-          InputTextFormart(
-            controller: _authCodeController,
-            prefixIcon: AppIcon.doneAll,
-            labelText: "Código (8 dígitos)",
-            hintText: "12345678",
-            maxLength: 15,
-          ),
-          AppSpacing.heightSmall,
-          InputTextFormart(
-            controller: _authClubIdController,
-            prefixIcon: AppIcon.home,
-            labelText: "Club ID (UUID para invitación)",
-            hintText: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
-            maxLength: 50,
-          ),
-          AppSpacing.heightMedium,
 
-          // Iniciar Sesión (POST /auth/login)
-          ButtonFormat.primary(
-            label: "1. Iniciar Sesión (/auth/login)",
-            isLoading: authState.isLoading,
-            onPressed: () async {
-              await ref
-                  .read(authProvider.notifier)
-                  .login(
-                    email: _authEmailController.text.trim(),
-                    password: _authPasswordController.text.trim(),
-                  );
-              if (context.mounted && ref.read(authProvider).isAuthenticated) {
-                SnackBarFormat().show(context, "Sesión iniciada correctamente");
-              }
-            },
+          // 1. Iniciar Sesión (POST /auth/login)
+          ContainerListTile(
+            title: "1. Iniciar Sesión",
+            subtitle: "POST /auth/login",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authPasswordController,
+                prefixIcon: AppIcon.password,
+                labelText: "Contraseña",
+                hintText: "••••••••",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.primary(
+                label: "Iniciar Sesión",
+                isLoading: authState.isLoading,
+                onPressed: () async {
+                  await ref
+                      .read(authProvider.notifier)
+                      .login(
+                        email: _authEmailController.text.trim(),
+                        password: _authPasswordController.text.trim(),
+                      );
+                  if (context.mounted &&
+                      ref.read(authProvider).isAuthenticated) {
+                    SnackBarFormat().show(
+                      context,
+                      "Sesión iniciada correctamente",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Consultar Usuario (GET /auth/me)
-          ButtonFormat.secondary(
-            label: "2. Obtener Perfil (/auth/me)",
-            onPressed: () async {
-              await ref.read(authProvider.notifier).getMe();
-              if (context.mounted && ref.read(authProvider).user != null) {
-                final u = ref.read(authProvider).user!;
-                SnackBarFormat().show(
-                  context,
-                  "Perfil: ${u.email} (${u.status})",
-                );
-              }
-            },
+          // 2. Consultar Usuario (GET /auth/me)
+          ContainerListTile(
+            title: "2. Obtener Perfil",
+            subtitle: "GET /auth/me",
+            expandedChild: [
+              TextFormat.body(
+                "Consulta la identidad, estado y roles de la cuenta en sesión.",
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Obtener Perfil",
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).getMe();
+                  if (context.mounted && ref.read(authProvider).user != null) {
+                    final u = ref.read(authProvider).user!;
+                    SnackBarFormat().show(
+                      context,
+                      "Perfil: ${u.email} (${u.status})",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Renovar Sesión (POST /auth/refresh)
-          ButtonFormat.secondary(
-            label: "3. Renovar Token (/auth/refresh)",
-            onPressed: () async {
-              final ok = await ref.read(authProvider.notifier).refreshSession();
-              if (context.mounted && ok) {
-                SnackBarFormat().show(context, "Token renovado con éxito");
-              }
-            },
+          // 3. Renovar Sesión (POST /auth/refresh)
+          ContainerListTile(
+            title: "3. Renovar Token",
+            subtitle: "POST /auth/refresh",
+            expandedChild: [
+              TextFormat.body(
+                "Renueva el token de acceso mediante el refresh token persistido.",
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Renovar Token",
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authProvider.notifier)
+                      .refreshSession();
+                  if (context.mounted && ok) {
+                    SnackBarFormat().show(context, "Token renovado con éxito");
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Solicitar Verificación de Email (POST /auth/email-verification/request)
-          ButtonFormat.secondary(
-            label: "4. Solicitar Verif. Email",
-            onPressed: () async {
-              final ok = await ref
-                  .read(authProvider.notifier)
-                  .requestEmailVerification(
-                    email: _authEmailController.text.trim(),
-                  );
-              if (context.mounted && ok) {
-                SnackBarFormat().show(
-                  context,
-                  "Código de verificación solicitado",
-                );
-              }
-            },
+          // 4. Solicitar Verificación de Email (POST /auth/email-verification/request)
+          ContainerListTile(
+            title: "4. Solicitar Verif. Email",
+            subtitle: "POST /auth/email-verification/request",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Solicitar Verif. Email",
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authProvider.notifier)
+                      .requestEmailVerification(
+                        email: _authEmailController.text.trim(),
+                      );
+                  if (context.mounted && ok) {
+                    SnackBarFormat().show(
+                      context,
+                      "Código de verificación solicitado",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Confirmar Verificación de Email (POST /auth/email-verification/confirm)
-          ButtonFormat.secondary(
-            label: "5. Confirmar Verif. Email",
-            onPressed: () async {
-              final ok = await ref
-                  .read(authProvider.notifier)
-                  .confirmEmailVerification(
-                    email: _authEmailController.text.trim(),
-                    code: _authCodeController.text.trim(),
-                  );
-              if (context.mounted && ok) {
-                SnackBarFormat().show(
-                  context,
-                  "Email verificado correctamente",
-                );
-              }
-            },
+          // 5. Confirmar Verificación de Email (POST /auth/email-verification/confirm)
+          ContainerListTile(
+            title: "5. Confirmar Verif. Email",
+            subtitle: "POST /auth/email-verification/confirm",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código (8 dígitos)",
+                hintText: "12345678",
+                maxLength: 15,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Confirmar Verif. Email",
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authProvider.notifier)
+                      .confirmEmailVerification(
+                        email: _authEmailController.text.trim(),
+                        code: _authCodeController.text.trim(),
+                      );
+                  if (context.mounted && ok) {
+                    SnackBarFormat().show(
+                      context,
+                      "Email verificado correctamente",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Solicitar Restablecer Contraseña (POST /auth/password-reset/request)
-          ButtonFormat.secondary(
-            label: "6. Solicitar Reset Contraseña",
-            onPressed: () async {
-              final ok = await ref
-                  .read(authProvider.notifier)
-                  .requestPasswordReset(
-                    email: _authEmailController.text.trim(),
-                  );
-              if (context.mounted && ok) {
-                SnackBarFormat().show(context, "Código de reset solicitado");
-              }
-            },
+          // 6. Solicitar Restablecer Contraseña (POST /auth/password-reset/request)
+          ContainerListTile(
+            title: "6. Solicitar Reset Contraseña",
+            subtitle: "POST /auth/password-reset/request",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Solicitar Reset Contraseña",
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authProvider.notifier)
+                      .requestPasswordReset(
+                        email: _authEmailController.text.trim(),
+                      );
+                  if (context.mounted && ok) {
+                    SnackBarFormat().show(
+                      context,
+                      "Código de reset solicitado",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Confirmar Restablecer Contraseña (POST /auth/password-reset/confirm)
-          ButtonFormat.secondary(
-            label: "7. Confirmar Reset Contraseña",
-            onPressed: () async {
-              final ok = await ref
-                  .read(authProvider.notifier)
-                  .confirmPasswordReset(
-                    email: _authEmailController.text.trim(),
-                    code: _authCodeController.text.trim(),
-                    newPassword: _authPasswordController.text.trim(),
-                  );
-              if (context.mounted && ok) {
-                SnackBarFormat().show(context, "Contraseña cambiada con éxito");
-              }
-            },
+          // 7. Confirmar Restablecer Contraseña (POST /auth/password-reset/confirm)
+          ContainerListTile(
+            title: "7. Confirmar Reset Contraseña",
+            subtitle: "POST /auth/password-reset/confirm",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código (8 dígitos)",
+                hintText: "12345678",
+                maxLength: 15,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authPasswordController,
+                prefixIcon: AppIcon.password,
+                labelText: "Nueva Contraseña",
+                hintText: "••••••••",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Confirmar Reset Contraseña",
+                onPressed: () async {
+                  final ok = await ref
+                      .read(authProvider.notifier)
+                      .confirmPasswordReset(
+                        email: _authEmailController.text.trim(),
+                        code: _authCodeController.text.trim(),
+                        newPassword: _authPasswordController.text.trim(),
+                      );
+                  if (context.mounted && ok) {
+                    SnackBarFormat().show(
+                      context,
+                      "Contraseña cambiada con éxito",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Inspeccionar Invitación de Club (POST /auth/invitations/inspect)
-          ButtonFormat.secondary(
-            label: "8. Inspeccionar Invitación (/invitations/inspect)",
-            onPressed: () async {
-              final info = await ref
-                  .read(authProvider.notifier)
-                  .inspectInvitation(
-                    email: _authEmailController.text.trim(),
-                    code: _authCodeController.text.trim(),
-                  );
-              if (context.mounted && info != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Club: ${info['clubName']} | Institución: ${info['institutionName']}",
-                );
-              }
-            },
+          // 8. Inspeccionar Invitación de Club (POST /auth/invitations/inspect)
+          ContainerListTile(
+            title: "8. Inspeccionar Invitación",
+            subtitle: "POST /auth/invitations/inspect",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código de Invitación",
+                hintText: "Código recibido",
+                maxLength: 20,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Inspeccionar Invitación",
+                onPressed: () async {
+                  final info = await ref
+                      .read(authProvider.notifier)
+                      .inspectInvitation(
+                        email: _authEmailController.text.trim(),
+                        code: _authCodeController.text.trim(),
+                      );
+                  if (context.mounted && info != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Club: ${info['clubName']} | Institución: ${info['institutionName']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Aceptar Invitación de Club (POST /auth/invitations/accept)
-          ButtonFormat.secondary(
-            label: "9. Aceptar Invitación (/invitations/accept)",
-            onPressed: () async {
-              final info = await ref
-                  .read(authProvider.notifier)
-                  .acceptInvitation(
-                    email: _authEmailController.text.trim(),
-                    code: _authCodeController.text.trim(),
-                    password: _authPasswordController.text.trim(),
-                    givenNames: _authGivenNamesController.text.trim(),
-                    familyName: _authFamilyNameController.text.trim(),
-                  );
-              if (context.mounted && info != null) {
-                SnackBarFormat().show(context, "Invitación aceptada con éxito");
-              }
-            },
+          // 9. Aceptar Invitación de Club (POST /auth/invitations/accept)
+          ContainerListTile(
+            title: "9. Aceptar Invitación",
+            subtitle: "POST /auth/invitations/accept",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo Electrónico",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código de Invitación",
+                hintText: "Código recibido",
+                maxLength: 20,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authPasswordController,
+                prefixIcon: AppIcon.password,
+                labelText: "Contraseña",
+                hintText: "••••••••",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authGivenNamesController,
+                prefixIcon: AppIcon.person,
+                labelText: "Nombres",
+                hintText: "Juan",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authFamilyNameController,
+                prefixIcon: AppIcon.person,
+                labelText: "Apellidos",
+                hintText: "Pérez",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Aceptar Invitación",
+                onPressed: () async {
+                  final info = await ref
+                      .read(authProvider.notifier)
+                      .acceptInvitation(
+                        email: _authEmailController.text.trim(),
+                        code: _authCodeController.text.trim(),
+                        password: _authPasswordController.text.trim(),
+                        givenNames: _authGivenNamesController.text.trim(),
+                        familyName: _authFamilyNameController.text.trim(),
+                      );
+                  if (context.mounted && info != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Invitación aceptada con éxito",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Crear Invitación (POST /auth/invitations)
-          ButtonFormat.secondary(
-            label: "10. Crear Invitación (/auth/invitations)",
-            onPressed: () async {
-              final info = await ref
-                  .read(authProvider.notifier)
-                  .createInvitation(
-                    clubId: _authClubIdController.text.trim(),
-                    // email: _authEmailController.text.trim(),
-                    email: "jonathan.juarez@ulv.edu.mx",
-                  );
-              if (context.mounted && info != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Invitación creada: ${info['invitationId']}",
-                );
-              }
-            },
+          // 10. Crear Invitación (POST /auth/invitations)
+          ContainerListTile(
+            title: "10. Crear Invitación",
+            subtitle: "POST /auth/invitations",
+            expandedChild: [
+              InputTextFormart(
+                controller: _authClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID (UUID)",
+                hintText: "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _authEmailController,
+                prefixIcon: AppIcon.email,
+                labelText: "Correo del Invitado",
+                hintText: "correo@ejemplo.com",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Crear Invitación",
+                onPressed: () async {
+                  final info = await ref
+                      .read(authProvider.notifier)
+                      .createInvitation(
+                        clubId: _authClubIdController.text.trim(),
+                        email: _authEmailController.text.trim(),
+                      );
+                  if (context.mounted && info != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Invitación creada: ${info['invitationId']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Cerrar Sesión (POST /auth/logout)
-          ButtonFormat.text(
-            label: "11. Cerrar Sesión (/auth/logout)",
-            onPressed: () async {
-              await ref.read(authProvider.notifier).signOut();
-              if (context.mounted) {
-                SnackBarFormat().show(context, "Sesión cerrada");
-              }
-            },
+          // 11. Cerrar Sesión (POST /auth/logout)
+          ContainerListTile(
+            title: "11. Cerrar Sesión",
+            subtitle: "POST /auth/logout",
+            expandedChild: [
+              TextFormat.body(
+                "Revoca las credenciales y limpia los datos de sesión activa en el dispositivo.",
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.text(
+                label: "Cerrar Sesión",
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).signOut();
+                  if (context.mounted) {
+                    SnackBarFormat().show(context, "Sesión cerrada");
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightMedium,
 
@@ -738,159 +1050,852 @@ class _PruebaWidgetsState extends ConsumerState<PruebaWidgets> {
           ),
           AppSpacing.heightSmall,
 
-          // Obtener Contexto (GET /workspace/context)
-          ButtonFormat.primary(
-            label: "W1. Obtener Contexto (/workspace/context)",
-            isLoading: workspaceState.isLoading,
-            onPressed: () async {
-              await ref.read(workspaceProvider.notifier).getContext();
-              final ws = ref.read(workspaceProvider).workspace;
-              if (ws != null && ws.clubs.isNotEmpty) {
-                _authClubIdController.text = ws.clubs.first.clubId;
-                if (context.mounted) {
-                  SnackBarFormat().show(
-                    context,
-                    "Club activo: ${ws.clubs.first.clubName}",
-                  );
-                }
-              }
-            },
+          // W1. Obtener Contexto (GET /workspace/context)
+          ContainerListTile(
+            title: "W1. Obtener Contexto",
+            subtitle: "GET /workspace/context",
+            expandedChild: [
+              TextFormat.body(
+                "Consulta el contexto del usuario autenticado (clubes e instituciones) y auto-rellena los IDs de Club y Campaña.",
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.primary(
+                label: "Consultar Contexto",
+                isLoading: workspaceState.isLoading,
+                onPressed: () async {
+                  await ref.read(workspaceProvider.notifier).getContext();
+                  final ws = ref.read(workspaceProvider).workspace;
+                  if (ws != null && ws.clubs.isNotEmpty) {
+                    final club = ws.clubs.first;
+                    _wsClubIdController.text = club.clubId;
+                    _materialClubIdController.text = club.clubId;
+                    _authClubIdController.text = club.clubId;
+                    if (context.mounted) {
+                      SnackBarFormat().show(
+                        context,
+                        "Contexto cargado: ${club.clubName}",
+                      );
+                    }
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Listar Membresías (GET /workspace/clubs/{clubId}/memberships)
-          ButtonFormat.secondary(
-            label: "W2. Membresías del Club (/memberships)",
-            onPressed: () async {
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .listClubMemberships(
-                    clubId: _authClubIdController.text.trim(),
-                  );
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Total miembros: ${data['total']}",
-                );
-              }
-            },
+          // W2. Listar Membresías (GET /workspace/clubs/{clubId}/memberships)
+          ContainerListTile(
+            title: "W2. Membresías del Club",
+            subtitle: "GET /workspace/clubs/{clubId}/memberships",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Membresías",
+                onPressed: () async {
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .listClubMemberships(
+                        clubId: _wsClubIdController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Total miembros: ${data['total']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Listar Campañas (GET /workspace/clubs/{clubId}/campaigns)
-          ButtonFormat.secondary(
-            label: "W3. Campañas del Club (/campaigns)",
-            onPressed: () async {
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .listClubCampaigns(clubId: _authClubIdController.text.trim());
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Total campañas: ${data['total']}",
-                );
-              }
-            },
+          // W3. Listar Campañas (GET /workspace/clubs/{clubId}/campaigns)
+          ContainerListTile(
+            title: "W3. Campañas del Club",
+            subtitle: "GET /workspace/clubs/{clubId}/campaigns",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Campañas",
+                onPressed: () async {
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .listClubCampaigns(
+                        clubId: _wsClubIdController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    final items = data['items'] as List<dynamic>?;
+                    if (items != null && items.isNotEmpty) {
+                      final firstId =
+                          items.first['campaignId']?.toString() ??
+                          items.first['id']?.toString() ??
+                          "";
+                      if (firstId.isNotEmpty) {
+                        _wsCampaignIdController.text = firstId;
+                        _catalogCampaignIdController.text = firstId;
+                      }
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Total campañas: ${data['total']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Listar Grupos de Campaña (GET /workspace/campaigns/{campaignId}/groups)
-          ButtonFormat.secondary(
-            label: "W4. Grupos de Campaña (/campaigns/{id}/groups)",
-            onPressed: () async {
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .listCampaignGroups(
-                    campaignId: _authCodeController.text.trim(),
-                  );
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Total grupos: ${data['total']}",
-                );
-              }
-            },
+          // W4. Listar Grupos de Campaña (GET /workspace/campaigns/{campaignId}/groups)
+          ContainerListTile(
+            title: "W4. Grupos de Campaña",
+            subtitle: "GET /workspace/campaigns/{campaignId}/groups",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsCampaignIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Campaign ID",
+                hintText: "UUID de la campaña",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Grupos",
+                onPressed: () async {
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .listCampaignGroups(
+                        campaignId: _wsCampaignIdController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Total grupos: ${data['total']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Listar Programas de Capacitación (GET /workspace/clubs/{clubId}/training-programs)
-          ButtonFormat.secondary(
-            label: "W5. Programas Capacitación (/training-programs)",
-            onPressed: () async {
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .listClubTrainingPrograms(
-                    clubId: _authClubIdController.text.trim(),
-                  );
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Total programas: ${data['total']}",
-                );
-              }
-            },
+          // W5. Listar Programas de Capacitación (GET /workspace/clubs/{clubId}/training-programs)
+          ContainerListTile(
+            title: "W5. Programas Capacitación",
+            subtitle: "GET /workspace/clubs/{clubId}/training-programs",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Programas",
+                onPressed: () async {
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .listClubTrainingPrograms(
+                        clubId: _wsClubIdController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Total programas: ${data['total']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Listar Roles del Club (GET /workspace/clubs/{clubId}/roles)
-          ButtonFormat.secondary(
-            label: "W6. Roles del Club (/roles)",
-            onPressed: () async {
-              final roles = await ref
-                  .read(workspaceProvider.notifier)
-                  .listClubRoles(clubId: _authClubIdController.text.trim());
-              if (context.mounted && roles != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Roles disponibles: ${roles.length}",
-                );
-              }
-            },
+          // W6. Listar Roles del Club (GET /workspace/clubs/{clubId}/roles)
+          ContainerListTile(
+            title: "W6. Roles del Club",
+            subtitle: "GET /workspace/clubs/{clubId}/roles",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Roles",
+                onPressed: () async {
+                  final roles = await ref
+                      .read(workspaceProvider.notifier)
+                      .listClubRoles(clubId: _wsClubIdController.text.trim());
+                  if (context.mounted && roles != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Roles disponibles: ${roles.length}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Asignar Rol (POST /workspace/clubs/{clubId}/access-assignments)
-          ButtonFormat.secondary(
-            label: "W7. Asignar Rol (/access-assignments)",
-            onPressed: () async {
-              final accountId =
-                  ref.read(authProvider).user?.id ??
-                  _authCodeController.text.trim();
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .assignClubRole(
-                    clubId: _authClubIdController.text.trim(),
-                    accountId: accountId,
-                    roleCode: "TRAINING_COORDINATOR",
-                    reason: "Asignación desde móvil",
-                  );
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Asignación: ${data['accessAssignmentId']}",
-                );
-              }
-            },
+          // W7. Asignar Rol (POST /workspace/clubs/{clubId}/access-assignments)
+          ContainerListTile(
+            title: "W7. Asignar Rol en Club",
+            subtitle: "POST /workspace/clubs/{clubId}/access-assignments",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _wsAccountIdController,
+                prefixIcon: AppIcon.person,
+                labelText: "Account ID (Usuario)",
+                hintText: "UUID del usuario a asignar",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _wsRoleCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código de Rol",
+                hintText: "Ej. TRAINING_COORDINATOR",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _wsReasonController,
+                prefixIcon: AppIcon.document,
+                labelText: "Motivo / Razón",
+                hintText: "Razón de la asignación",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Asignar Rol",
+                onPressed: () async {
+                  final accountId =
+                      _wsAccountIdController.text.trim().isNotEmpty
+                      ? _wsAccountIdController.text.trim()
+                      : (ref.read(authProvider).user?.id ?? "");
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .assignClubRole(
+                        clubId: _wsClubIdController.text.trim(),
+                        accountId: accountId,
+                        roleCode: _wsRoleCodeController.text.trim(),
+                        reason: _wsReasonController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    if (data['accessAssignmentId'] != null) {
+                      _wsAccessAssignmentIdController.text =
+                          data['accessAssignmentId'].toString();
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Asignación: ${data['accessAssignmentId']}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightSmall,
 
-          // Revocar Rol (POST /workspace/access-assignments/{id}/revoke)
-          ButtonFormat.secondary(
-            label: "W8. Revocar Rol (/access-assignments/{id}/revoke)",
-            onPressed: () async {
-              final data = await ref
-                  .read(workspaceProvider.notifier)
-                  .revokeAccessAssignment(
-                    accessAssignmentId: _authCodeController.text.trim(),
-                    reason: "Revocación desde móvil",
-                  );
-              if (context.mounted && data != null) {
-                SnackBarFormat().show(
-                  context,
-                  "Estado: ${data['status']}",
-                );
-              }
-            },
+          // W8. Revocar Rol (POST /workspace/access-assignments/{id}/revoke)
+          ContainerListTile(
+            title: "W8. Revocar Rol en Club",
+            subtitle: "POST /workspace/access-assignments/{id}/revoke",
+            expandedChild: [
+              InputTextFormart(
+                controller: _wsAccessAssignmentIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Access Assignment ID",
+                hintText: "UUID de la asignación a revocar",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _wsReasonController,
+                prefixIcon: AppIcon.document,
+                labelText: "Motivo de Revocación",
+                hintText: "Razón de la revocación",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Revocar Rol",
+                onPressed: () async {
+                  final data = await ref
+                      .read(workspaceProvider.notifier)
+                      .revokeAccessAssignment(
+                        accessAssignmentId: _wsAccessAssignmentIdController.text
+                            .trim(),
+                        reason: _wsReasonController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(context, "Estado: ${data['status']}");
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightMedium,
+
+          // Sección de pruebas de Catalog and Materials (10 endpoints)
+          ContainerFormat(
+            children: [
+              TextFormat.subtitle("Catálogos y Materiales"),
+              AppSpacing.heightSmall,
+              TextFormat.body(
+                catalogState.catalogs.isNotEmpty
+                    ? "Catálogos cargados: ${catalogState.catalogs.length} | Materiales: ${catalogState.materials.length}"
+                    : "Catálogo: Sin consultar",
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C1. Dar de alta material (POST /inventory/materials)
+          ContainerListTile(
+            title: "C1. Crear Material",
+            subtitle: "POST /inventory/materials",
+            expandedChild: [
+              InputTextFormart(
+                controller: _materialClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _materialCodeController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Código Material",
+                hintText: "Ej. LIB-001",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _materialNameController,
+                prefixIcon: AppIcon.document,
+                labelText: "Nombre del Material",
+                hintText: "Ej. El Deseado de Todas las Gentes",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _materialCategoryController,
+                prefixIcon: AppIcon.catalogo,
+                labelText: "Categoría",
+                hintText: "Ej. Libros",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _materialDescController,
+                prefixIcon: AppIcon.edit,
+                labelText: "Descripción",
+                hintText: "Descripción breve",
+                maxLength: 200,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Crear Material",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .createMaterial(
+                        clubId: _materialClubIdController.text.trim(),
+                        code: _materialCodeController.text.trim(),
+                        name: _materialNameController.text.trim(),
+                        category: _materialCategoryController.text.trim(),
+                        description: _materialDescController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    if (data['materialId'] != null) {
+                      _catalogMaterialIdController.text = data['materialId']
+                          .toString();
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Material creado: ${data['code']} (${data['status']})",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C2. Crear borrador de catálogo (POST /inventory/campaigns/{id}/catalogs)
+          ContainerListTile(
+            title: "C2. Crear Catálogo de Campaña",
+            subtitle: "POST /inventory/campaigns/{id}/catalogs",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogCampaignIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Campaign ID",
+                hintText: "UUID de la campaña",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogNameController,
+                prefixIcon: AppIcon.document,
+                labelText: "Nombre Catálogo",
+                hintText: "Ej. Catálogo Oficial Campaña",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogSourceTypeController,
+                prefixIcon: AppIcon.catalogo,
+                labelText: "Source Type",
+                hintText: "Ej. MANUAL",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogSourceNameController,
+                prefixIcon: AppIcon.home,
+                labelText: "Source Name",
+                hintText: "Ej. Editorial IADPA",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogCurrencyController,
+                prefixIcon: AppIcon.pagos,
+                labelText: "Moneda (ISO)",
+                hintText: "Ej. MXN",
+                maxLength: 10,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Crear Catálogo",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .createCampaignCatalog(
+                        campaignId: _catalogCampaignIdController.text.trim(),
+                        name: _catalogNameController.text.trim(),
+                        sourceType: _catalogSourceTypeController.text.trim(),
+                        sourceName: _catalogSourceNameController.text.trim(),
+                        sourceCutAt: DateTime.now().toIso8601String(),
+                        currency: _catalogCurrencyController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    if (data['catalogId'] != null) {
+                      _catalogIdController.text = data['catalogId'].toString();
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Catálogo ID: ${data['catalogId']} (${data['status']})",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C3. Listar catálogos de campaña (GET /inventory/campaigns/{id}/catalogs)
+          ContainerListTile(
+            title: "C3. Catálogos de Campaña",
+            subtitle: "GET /inventory/campaigns/{id}/catalogs",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogCampaignIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Campaign ID",
+                hintText: "UUID de la campaña",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.primary(
+                label: "Listar Catálogos",
+                isLoading: catalogState.isLoading,
+                onPressed: () async {
+                  final list = await ref
+                      .read(catalogProvider.notifier)
+                      .listCampaignCatalogs(
+                        campaignId: _catalogCampaignIdController.text.trim(),
+                      );
+                  if (context.mounted && list != null) {
+                    if (list.isNotEmpty) {
+                      _catalogIdController.text = list.first.catalogId;
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Catálogos encontrados: ${list.length}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C4. Agregar ítem a catálogo (POST /inventory/catalogs/{id}/items)
+          ContainerListTile(
+            title: "C4. Agregar Ítem a Catálogo",
+            subtitle: "POST /inventory/catalogs/{id}/items",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Catalog ID",
+                hintText: "UUID del catálogo",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogMaterialIdController,
+                prefixIcon: AppIcon.document,
+                labelText: "Material ID",
+                hintText: "UUID del material a vincular",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogListPriceController,
+                prefixIcon: AppIcon.pagos,
+                labelText: "Precio de Lista",
+                hintText: "Ej. 250.00",
+                maxLength: 20,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Agregar Ítem",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .addCatalogItem(
+                        catalogId: _catalogIdController.text.trim(),
+                        materialId: _catalogMaterialIdController.text.trim(),
+                        listPrice: _catalogListPriceController.text.trim(),
+                        bonusEligible: true,
+                      );
+                  if (context.mounted && data != null) {
+                    if (data['catalogItemId'] != null) {
+                      _acqCatalogItemIdController.text = data['catalogItemId']
+                          .toString();
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Ítem agregado ID: ${data['catalogItemId']}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C5. Publicar o cerrar catálogo (PUT /inventory/catalogs/{id}/status)
+          ContainerListTile(
+            title: "C5. Cambiar Estado Catálogo",
+            subtitle: "PUT /inventory/catalogs/{id}/status",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Catalog ID",
+                hintText: "UUID del catálogo",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogStatusController,
+                prefixIcon: AppIcon.catalogo,
+                labelText: "Nuevo Estado (ACTIVE, CLOSED, ARCHIVED)",
+                hintText: "ACTIVE",
+                maxLength: 20,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Actualizar Estado Catálogo",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .updateCatalogStatus(
+                        catalogId: _catalogIdController.text.trim(),
+                        status: _catalogStatusController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Catálogo publicado: ${data['status']}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C6. Registrar asignación/pedido de material (POST /inventory/campaigns/{id}/acquisitions)
+          ContainerListTile(
+            title: "C6. Registrar Asignación / Pedido",
+            subtitle: "POST /inventory/campaigns/{id}/acquisitions",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogCampaignIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Campaign ID",
+                hintText: "UUID de la campaña",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _acqParticipationIdController,
+                prefixIcon: AppIcon.person,
+                labelText: "Participation ID (Colportor)",
+                hintText: "UUID de la participación",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _catalogIdController,
+                prefixIcon: AppIcon.document,
+                labelText: "Catalog ID",
+                hintText: "UUID del catálogo",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _acqCatalogItemIdController,
+                prefixIcon: AppIcon.catalogo,
+                labelText: "Catalog Item ID",
+                hintText: "UUID del ítem del catálogo",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _acqQuantityController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Cantidad",
+                hintText: "Ej. 1",
+                maxLength: 10,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Registrar Asignación",
+                onPressed: () async {
+                  final qty =
+                      int.tryParse(_acqQuantityController.text.trim()) ?? 1;
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .createAcquisition(
+                        campaignId: _catalogCampaignIdController.text.trim(),
+                        participationId: _acqParticipationIdController.text
+                            .trim(),
+                        catalogId: _catalogIdController.text.trim(),
+                        acquiredAt: DateTime.now().toIso8601String(),
+                        items: [
+                          {
+                            "catalogItemId": _acqCatalogItemIdController.text
+                                .trim(),
+                            "quantity": qty,
+                          },
+                        ],
+                      );
+                  if (context.mounted && data != null) {
+                    if (data['acquisitionId'] != null) {
+                      _acqIdController.text = data['acquisitionId'].toString();
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Adquisición creada: ${data['acquisitionId']}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C7. Listar asignaciones de la campaña (GET /inventory/campaigns/{id}/acquisitions)
+          ContainerListTile(
+            title: "C7. Asignaciones de Campaña",
+            subtitle: "GET /inventory/campaigns/{id}/acquisitions",
+            expandedChild: [
+              InputTextFormart(
+                controller: _catalogCampaignIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Campaign ID",
+                hintText: "UUID de la campaña",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Asignaciones",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .listCampaignAcquisitions(
+                        campaignId: _catalogCampaignIdController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Total pedidos: ${data['total']}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C8. Actualizar estado adquisición (PUT /inventory/acquisitions/{id}/status)
+          ContainerListTile(
+            title: "C8. Actualizar Estado Asignación",
+            subtitle: "PUT /inventory/acquisitions/{id}/status",
+            expandedChild: [
+              InputTextFormart(
+                controller: _acqIdController,
+                prefixIcon: AppIcon.doneAll,
+                labelText: "Acquisition ID",
+                hintText: "UUID de la adquisición",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _acqStatusController,
+                prefixIcon: AppIcon.catalogo,
+                labelText: "Nuevo Estado (DELIVERED, CANCELLED, RETURNED)",
+                hintText: "DELIVERED",
+                maxLength: 30,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _acqResolutionController,
+                prefixIcon: AppIcon.document,
+                labelText: "Resolución / Motivo",
+                hintText: "Motivo del cambio de estado",
+                maxLength: 100,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Actualizar Estado",
+                onPressed: () async {
+                  final data = await ref
+                      .read(catalogProvider.notifier)
+                      .updateAcquisitionStatus(
+                        acquisitionId: _acqIdController.text.trim(),
+                        status: _acqStatusController.text.trim(),
+                        resolution: _acqResolutionController.text.trim(),
+                      );
+                  if (context.mounted && data != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Estado pedido: ${data['status']}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C9. Listar materiales del club (GET /inventory/clubs/{id}/materials)
+          ContainerListTile(
+            title: "C9. Materiales del Club",
+            subtitle: "GET /inventory/clubs/{id}/materials",
+            expandedChild: [
+              InputTextFormart(
+                controller: _materialClubIdController,
+                prefixIcon: AppIcon.home,
+                labelText: "Club ID",
+                hintText: "UUID del club",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              InputTextFormart(
+                controller: _materialSearchController,
+                prefixIcon: AppIcon.search,
+                labelText: "Búsqueda (opcional)",
+                hintText: "Buscar por nombre o código",
+                maxLength: 50,
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Listar Materiales",
+                onPressed: () async {
+                  final list = await ref
+                      .read(catalogProvider.notifier)
+                      .listClubMaterials(
+                        clubId: _materialClubIdController.text.trim(),
+                        search: _materialSearchController.text.trim().isEmpty
+                            ? null
+                            : _materialSearchController.text.trim(),
+                      );
+                  if (context.mounted && list != null) {
+                    if (list.isNotEmpty) {
+                      _catalogMaterialIdController.text = list.first.materialId;
+                    }
+                    SnackBarFormat().show(
+                      context,
+                      "Materiales encontrados: ${list.length}",
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          AppSpacing.heightSmall,
+
+          // C10. Mis adquisiciones de colportor (GET /inventory/me/acquisitions)
+          ContainerListTile(
+            title: "C10. Mis Adquisiciones",
+            subtitle: "GET /inventory/me/acquisitions",
+            expandedChild: [
+              TextFormat.body(
+                "Consulta todas las asignaciones o pedidos de material registrados a nombre del colportor autenticado.",
+              ),
+              AppSpacing.heightSmall,
+              ButtonFormat.secondary(
+                label: "Consultar Mis Adquisiciones",
+                onPressed: () async {
+                  final list = await ref
+                      .read(catalogProvider.notifier)
+                      .listMyAcquisitions();
+                  if (context.mounted && list != null) {
+                    SnackBarFormat().show(
+                      context,
+                      "Mis pedidos asignados: ${list.length}",
+                    );
+                  }
+                },
+              ),
+            ],
           ),
           AppSpacing.heightMedium,
         ],
