@@ -9,13 +9,22 @@ import 'package:uuid/uuid.dart';
 
 class ApiClient {
   // Mantiene una conexión HTTP persistente para optimizar el rendimiento de red.
-  final http.Client _client = http.Client();
+  final http.Client _client;
   final Uuid _uuid = const Uuid();
 
-  Map<String, String> _headers(String method, [String? token]) => {
+  // Permite inyectar un cliente HTTP en pruebas; la app usa el cliente por defecto.
+  ApiClient({http.Client? client}) : _client = client ?? http.Client();
+
+  // Usa la clave de idempotencia recibida o, como hasta ahora, genera una nueva por petición.
+  Map<String, String> _headers(
+    String method, [
+    String? token,
+    String? idempotencyKey,
+  ]) => {
     "Content-Type": "application/json; charset=utf-8",
     if (token != null && token.isNotEmpty) "Authorization": "Bearer $token",
-    if (method == "POST" || method == "PUT") "idempotency-key": _uuid.v4(),
+    if (method == "POST" || method == "PUT")
+      "idempotency-key": idempotencyKey ?? _uuid.v4(),
   };
 
   // Ejecuta la petición HTTP y procesa la respuesta mediante manageHttpResponse.
@@ -25,10 +34,11 @@ class ApiClient {
     Map<String, dynamic>? body,
     String? token,
     T Function(dynamic json)? fromJson,
+    String? idempotencyKey,
   }) async {
     try {
       final uri = Uri.parse('$uriProduction$endpoint');
-      final headers = _headers(method, token);
+      final headers = _headers(method, token, idempotencyKey);
       final encodedBody = body != null ? jsonEncode(body) : null;
 
       final response = switch (method) {
@@ -60,8 +70,15 @@ class ApiClient {
     Map<String, dynamic>? body,
     String? token,
     T Function(dynamic json)? fromJson,
-  }) =>
-      _request("POST", endpoint, body: body, token: token, fromJson: fromJson);
+    String? idempotencyKey,
+  }) => _request(
+    "POST",
+    endpoint,
+    body: body,
+    token: token,
+    fromJson: fromJson,
+    idempotencyKey: idempotencyKey,
+  );
 
   Future<Result<T>> put<T>(
     String endpoint, {
