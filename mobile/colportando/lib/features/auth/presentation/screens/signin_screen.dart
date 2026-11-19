@@ -1,4 +1,3 @@
-import 'package:colportando/core/router/global_route.dart';
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/utils/global_validator.dart';
@@ -39,18 +38,10 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // No redibuja la vista; se ejecuta algo puntual (mostrar alertas o navegar) cuando el estado cambia.
+    // No redibuja la vista; se ejecuta algo puntual (mostrar alertas) cuando el estado cambia.
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.errorMessage != null) {
         SnackBarFormat().show(context, next.errorMessage!, isError: true);
-      }
-      if (next.isAuthenticated) {
-        // Navegación al completar la autenticación.
-        Navigator.pushNamedAndRemoveUntil(
-          context,
-          GlobalRoute.mainNavigation,
-          (route) => false,
-        );
       }
     });
 

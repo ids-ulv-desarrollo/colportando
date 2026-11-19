@@ -2,6 +2,7 @@ import 'package:colportando/core/router/imports.dart';
 import 'package:colportando/core/screens/main_navigation_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/signin_screen.dart';
+import 'package:colportando/features/auth/presentation/widgets/auth_gate.dart';
 import 'package:colportando/features/campaigns/presentation/screens/add_campign_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/edit_campign_screen.dart';
@@ -47,6 +48,7 @@ class GlobalRoute {
   static const String pruebaWidgets = "/prueba_widgets";
 
   static Map<String, WidgetBuilder> routes = {
+    initial: (context) => const AuthGate(),
     signup: (context) => const SignupScreen(),
     signin: (context) => const SigninScreen(),
     mainNavigation: (context) => const MainNavigationScreen(),
