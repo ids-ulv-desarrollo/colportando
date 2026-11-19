@@ -18,7 +18,7 @@ Result<T> manageHttpResponse<T>({
     if (fromJson != null) {
       try {
         final payload = (body is Map)
-            ? (body['items'] ?? body['data'] ?? body)
+            ? (body['data'] ?? body)
             : body;
         return Result.success(fromJson(payload));
       } catch (e) {
