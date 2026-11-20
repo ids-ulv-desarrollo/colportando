@@ -4,36 +4,56 @@ import 'package:colportando/core/utils/global_validator.dart';
 import 'package:colportando/core/widgets/button_format.dart';
 import 'package:colportando/core/widgets/date_picker_format.dart';
 import 'package:colportando/core/widgets/dialog_format.dart';
-import 'package:colportando/core/widgets/dropdown_format.dart';
 import 'package:colportando/core/widgets/input_text_formart.dart';
 import 'package:colportando/core/widgets/scaffold_format.dart';
 import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
+import 'package:colportando/features/campaigns/presentation/riverpod/campaign_riverpod.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:http/http.dart';
 
-class AddCampignScreen extends StatefulWidget {
+class AddCampignScreen extends ConsumerStatefulWidget {
   const AddCampignScreen({super.key});
 
   @override
-  State<AddCampignScreen> createState() => _AddCampignScreenState();
+  ConsumerState<AddCampignScreen> createState() => _AddCampignScreenState();
 }
 
-class _AddCampignScreenState extends State<AddCampignScreen> {
+class _AddCampignScreenState extends ConsumerState<AddCampignScreen> {
+  final TextEditingController _clubIdController = TextEditingController(text: "E0CBA2E7-B5C2-4A43-A2EC-CBD22356FEA5");
   final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _startDateController = TextEditingController();
   final TextEditingController _endDateController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? _selectedStatus;
+
+  DateTime? _startsOn;
+  DateTime? _endsOn;
 
   @override
   void dispose() {
     _nameController.dispose();
+    _descriptionController.dispose();
     _startDateController.dispose();
     _endDateController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectDate(TextEditingController controller) async {
+  void _campaign() => ref
+      .read(campaignsProvider.notifier)
+      .createCampaign(
+        clubId: _clubIdController.text.trim(),
+        name: _nameController.text.trim(),
+        description: _descriptionController.text.trim(),
+        startsOn: _startsOn!,
+        endsOn: _endsOn!,
+      );
+
+  Future<void> _selectDate({
+    required TextEditingController controller,
+    required bool isStart,
+  }) async {
     final pickedDate = await DatePickerFormat(
       firstDate: DateTime(2000),
       lastDate: DateTime(2030),
@@ -42,7 +62,14 @@ class _AddCampignScreenState extends State<AddCampignScreen> {
     if (pickedDate != null) {
       final formattedDate =
           "${pickedDate.day.toString().padLeft(2, '0')}/${pickedDate.month.toString().padLeft(2, '0')}/${pickedDate.year}";
-      controller.text = formattedDate;
+      setState(() {
+        controller.text = formattedDate;
+        if (isStart) {
+          _startsOn = pickedDate;
+        } else {
+          _endsOn = pickedDate;
+        }
+      });
     }
   }
 
@@ -64,6 +91,15 @@ class _AddCampignScreenState extends State<AddCampignScreen> {
           maxLength: 50,
         ),
         AppSpacing.heightMedium,
+        TextFormat.body("Descripción"),
+        AppSpacing.heightMedium,
+        InputTextFormart(
+          controller: _descriptionController,
+          labelText: "Descripción (opcional)",
+          hintText: "Ingresa una descripción",
+          maxLength: 150,
+        ),
+        AppSpacing.heightMedium,
         TextFormat.body('Periodo de la campaña'),
         AppSpacing.heightMedium,
         Row(
@@ -77,7 +113,10 @@ class _AddCampignScreenState extends State<AddCampignScreen> {
                 maxLength: 15,
                 suffixIcon: ButtonFormat.icon(
                   icon: AppIcon.calendar,
-                  onPressed: () => _selectDate(_startDateController),
+                  onPressed: () => _selectDate(
+                    controller: _startDateController,
+                    isStart: true,
+                  ),
                 ),
               ),
             ),
@@ -91,27 +130,13 @@ class _AddCampignScreenState extends State<AddCampignScreen> {
                 maxLength: 15,
                 suffixIcon: ButtonFormat.icon(
                   icon: AppIcon.calendar,
-                  onPressed: () => _selectDate(_endDateController),
+                  onPressed: () => _selectDate(
+                    controller: _endDateController,
+                    isStart: false,
+                  ),
                 ),
               ),
             ),
-          ],
-        ),
-        AppSpacing.heightMedium,
-        TextFormat.body("Estado de la campaña."),
-        AppSpacing.heightMedium,
-        DropdownFormat<String>(
-          labelText: "Estado",
-          hintText: 'Selecciona un estado',
-          value: _selectedStatus,
-          onChanged: (value) {
-            setState(() => _selectedStatus = value);
-          },
-          validator: GlobalValidator.validateRequired,
-          items: const [
-            DropdownMenuItem(value: 'Activa', child: Text('Activa')),
-            DropdownMenuItem(value: 'Proxima', child: Text('Próxima')),
-            //DropdownMenuItem(value: 'Finalizada', child: Text('Finalizada')),
           ],
         ),
         AppSpacing.heightMedium,
