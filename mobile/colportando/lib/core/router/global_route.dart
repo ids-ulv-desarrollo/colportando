@@ -1,7 +1,12 @@
 import 'package:colportando/core/router/imports.dart';
 import 'package:colportando/core/screens/main_navigation_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/create_invitation_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/inspect_invitation_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/profile_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/reset_password_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/signin_screen.dart';
+import 'package:colportando/features/auth/presentation/screens/signup_screen.dart';
 import 'package:colportando/features/auth/presentation/widgets/auth_gate.dart';
 import 'package:colportando/features/campaigns/presentation/screens/add_campign_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
@@ -22,6 +27,8 @@ class GlobalRoute {
   static const String resetPassword = "/reset_password";
   static const String forgotPassword = "/forgot_password";
   static const String confirmation = "/confirmation";
+  static const String inspectInvitation = "/inspect_invitation";
+  static const String createInvitation = "/create_invitation";
 
   static const String notifications = "/notifications";
 
@@ -51,6 +58,10 @@ class GlobalRoute {
     initial: (context) => const AuthGate(),
     signup: (context) => const SignupScreen(),
     signin: (context) => const SigninScreen(),
+    forgotPassword: (context) => const ForgotPasswordScreen(),
+    resetPassword: (context) => const ResetPasswordScreen(),
+    inspectInvitation: (context) => const InspectInvitationScreen(),
+    createInvitation: (context) => const CreateInvitationScreen(),
     mainNavigation: (context) => const MainNavigationScreen(),
     profile: (context) => const ProfileScreen(),
     notifications: (context) => const NotificationScreen(),

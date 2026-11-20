@@ -1,3 +1,4 @@
+import 'package:colportando/core/router/global_route.dart';
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
 import 'package:colportando/core/utils/global_validator.dart';
@@ -67,6 +68,17 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           hintText: "••••••••",
           prefixIcon: AppIcon.password,
           maxLength: 50,
+          validator: GlobalValidator.validatePassword,
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: authState.isLoading
+                ? null
+                : () =>
+                      Navigator.pushNamed(context, GlobalRoute.forgotPassword),
+            child: const Text("¿Olvidaste tu contraseña?"),
+          ),
         ),
         AppSpacing.heightMedium,
         ButtonFormat.primary(
@@ -76,13 +88,11 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
           isLoading: authState.isLoading,
           onPressed: _handleLogin,
         ),
-        AppSpacing.heightMedium,
-        Row(
-          mainAxisAlignment: .spaceEvenly,
-          children: [
-            ButtonFormat.icon(icon: AppIcon.google, onPressed: _handleLogin),
-            ButtonFormat.icon(icon: AppIcon.ios, onPressed: _handleLogin),
-          ],
+        AppSpacing.heightSmall,
+        ButtonFormat.text(
+          label: "Crear cuenta",
+          onPressed: () =>
+              Navigator.pushNamed(context, GlobalRoute.inspectInvitation),
         ),
       ],
     );
