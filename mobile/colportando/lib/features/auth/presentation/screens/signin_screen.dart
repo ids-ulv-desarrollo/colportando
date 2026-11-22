@@ -30,12 +30,14 @@ class _SigninScreenState extends ConsumerState<SigninScreen> {
   }
 
   // Método para manejar el inicio de sesión.
-  void _handleLogin() => ref
-      .read(authProvider.notifier)
-      .login(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+  void _handleLogin() {
+    ref
+        .read(authProvider.notifier)
+        .login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
