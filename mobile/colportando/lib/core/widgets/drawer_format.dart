@@ -114,13 +114,10 @@ class _LogoFormart extends StatelessWidget {
                       width: 2,
                     ),
                   ),
-                  child: const IconTheme(
-                    data: IconThemeData(color: Colors.white, size: 14),
-                    child: SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: FittedBox(child: AppIcon.edit),
-                    ),
+                  child: const SizedBox(
+                    width: 14,
+                    height: 14,
+                    child: FittedBox(child: AppIcon.edit),
                   ),
                 ),
               ),

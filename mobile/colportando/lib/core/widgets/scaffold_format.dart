@@ -1,4 +1,6 @@
+import 'package:colportando/core/extensions/theme_extensions.dart';
 import 'package:colportando/core/theme/app_breakpoint.dart';
+import 'package:colportando/core/theme/app_color.dart';
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/theme/app_safe.dart';
 import 'package:colportando/core/theme/app_spacing.dart';
@@ -76,13 +78,17 @@ class ScaffoldFormat extends StatelessWidget {
 
     // Muestra el botón de menú si el Scaffold padre (ej. MainNavigationScreen) tiene Drawer.
     final hasAncestorDrawer = Scaffold.maybeOf(context)?.hasDrawer ?? false;
+    final isTransparentAppBar = titleAppBar == null;
+    final menuColor = isTransparentAppBar
+        ? context.colorScheme.onSurface
+        : AppColor.white;
     final effectiveLeading =
         leading ??
         (hasAncestorDrawer
             ? Padding(
                 padding: AppSpacing.paddingSmall,
                 child: ButtonFormat.icon(
-                  icon: AppIcon.menu,
+                  icon: AppIcon.menu(color: menuColor),
                   onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
               )

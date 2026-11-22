@@ -65,8 +65,11 @@ class AppIcon {
     icon: HugeIcons.strokeRoundedTickDouble01,
   );
 
-  // Icono de menú desplegable de depósitos.
-  static const Widget menu = HugeIcon(icon: HugeIcons.strokeRoundedMenu04);
+  // Icono de menú desplegable.
+  static Widget menu({Color? color}) => HugeIcon(
+    icon: HugeIcons.strokeRoundedMenu04,
+    color: color,
+  );
   static const Widget moreHoriz = HugeIcon(
     icon: HugeIcons.strokeRoundedMoreHorizontal,
   );
