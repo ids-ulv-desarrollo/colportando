@@ -1,5 +1,6 @@
 import 'package:colportando/core/theme/app_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:hugeicons/hugeicons.dart';
 
 class AppIcon {
@@ -68,6 +69,9 @@ class AppIcon {
   static const Widget moreHoriz = HugeIcon(
     icon: HugeIcons.strokeRoundedMoreHorizontal,
   );
+  static const Widget moreVert = HugeIcon(
+    icon: HugeIcons.strokeRoundedMoreVertical,
+  );
 
   // Fechas
   static const Widget arrowRight = HugeIcon(
@@ -107,5 +111,14 @@ class AppIcon {
   );
   static const Widget adquisiciones = HugeIcon(
     icon: HugeIcons.strokeRoundedTag01,
+  );
+  static const Widget materiales = (HugeIcon(
+    icon: HugeIcons.strokeRoundedBookshelf02,
+  ));
+  static const Widget libro = HugeIcon(icon: HugeIcons.strokeRoundedBook04);
+  static const Widget categoria = HugeIcon(icon: HugeIcons.strokeRoundedTags);
+  static const Widget marcador = HugeIcon(icon: HugeIcons.strokeRoundedStar);
+  static final Widget marcadorSolid = SvgPicture.asset(
+    'assets/icons/star_solid.svg',
   );
 }

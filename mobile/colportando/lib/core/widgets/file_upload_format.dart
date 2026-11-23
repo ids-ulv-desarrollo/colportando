@@ -13,6 +13,8 @@ class FileUploadFormat extends StatelessWidget {
   final String? fileName;
   final VoidCallback? onRemove;
   final ValueChanged<String>? onFileSelected;
+  final ValueChanged<List<String>>? onFilesSelected;
+  final bool allowMultiple;
   final bool allowCamera;
   final FileType fileType;
   final List<String>? allowedExtensions;
@@ -23,6 +25,8 @@ class FileUploadFormat extends StatelessWidget {
     this.fileName,
     this.onRemove,
     this.onFileSelected,
+    this.onFilesSelected,
+    this.allowMultiple = false,
     this.allowCamera = true,
     this.fileType = FileType.any,
     this.allowedExtensions,
@@ -33,9 +37,12 @@ class FileUploadFormat extends StatelessWidget {
       type: fileType,
       allowedExtensions: allowedExtensions,
     );
-    final path = result.firstOrNull?.path;
-    if (path != null) {
-      onFileSelected?.call(path);
+    final paths = result.map((file) => file.path).whereType<String>().toList();
+    if (paths.isEmpty) return;
+    if (allowMultiple) {
+      onFilesSelected?.call(paths);
+    } else {
+      onFileSelected?.call(paths.first);
     }
   }
 
@@ -79,6 +86,9 @@ class FileUploadFormat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final hasFile = fileName != null && fileName!.isNotEmpty;
+    final displayName = hasFile
+        ? fileName!.split(RegExp(r'[\\\\/]')).last
+        : label;
 
     return ContainerFormat(
       onPressed: () => _showSelectionSheet(context),
@@ -92,7 +102,7 @@ class FileUploadFormat extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextFormat.body(hasFile ? fileName! : label),
+                  TextFormat.body(hasFile ? displayName : label),
                   if (hasFile) TextFormat.bodySecondary("Archivo seleccionado"),
                 ],
               ),
