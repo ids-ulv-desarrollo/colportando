@@ -48,7 +48,7 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   assets:
-  - assets/icons/Edu.svg
+  - assets/icons/
 
 flutter_launcher_icons:
   android: true
