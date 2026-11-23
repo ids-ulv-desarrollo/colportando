@@ -1,13 +1,13 @@
 import 'package:colportando/core/theme/app_icon.dart';
 import 'package:colportando/core/widgets/bottom_bar_format.dart';
 import 'package:colportando/core/widgets/drawer_format.dart';
+import 'package:colportando/features/Materials/presentation/screens/materials_screen.dart';
 import 'package:colportando/features/acquisitions/presentation/screens/acquisitions_screen.dart';
 import 'package:colportando/features/auth/presentation/screens/waiting_role_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/agenda_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/appeals_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/campaigns_screen.dart';
 import 'package:colportando/features/campaigns/presentation/screens/fields_screen.dart';
-import 'package:colportando/features/catalog/presentation/screens/catalog_screen.dart';
 import 'package:colportando/features/credits/presentation/screens/credits_screen.dart';
 import 'package:colportando/features/deposits/presentation/screens/deposits_screen.dart';
 import 'package:colportando/features/groups/presentation/screens/groups_screen.dart';
@@ -62,13 +62,17 @@ class RoleNavigationConfig {
         return const [CampaignsScreen(), ParticipantsScreen(), AgendaScreen()];
 
       case "colportor":
-        return const [CampaignsScreen(), SalesScreen(), CatalogScreen()];
+        return const [CampaignsScreen(), SalesScreen(), MaterialsScreen()];
 
       case "asociado":
         return const [CampaignsScreen(), ParticipantsScreen(), FieldsScreen()];
 
       default:
-        return const [WaitingRoleScreen(), CatalogScreen(), TrainingsScreen()];
+        return const [
+          WaitingRoleScreen(),
+          MaterialsScreen(),
+          TrainingsScreen(),
+        ];
     }
   }
 
@@ -128,7 +132,7 @@ class RoleNavigationConfig {
           FieldsScreen(),
           AppealsScreen(),
           DepositsScreen(),
-          CatalogScreen(),
+          MaterialsScreen(),
         ];
 
       case "colportor":
@@ -145,7 +149,7 @@ class RoleNavigationConfig {
       case "asociado":
         return const [
           AcquisitionsScreen(),
-          CatalogScreen(),
+          MaterialsScreen(),
           DepositsScreen(),
           CreditsScreen(),
         ];
