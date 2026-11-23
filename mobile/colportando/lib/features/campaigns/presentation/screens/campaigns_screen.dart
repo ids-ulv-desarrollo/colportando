@@ -5,38 +5,147 @@ import 'package:colportando/core/widgets/bottom_sheet_format.dart';
 import 'package:colportando/core/widgets/button_format.dart';
 import 'package:colportando/core/widgets/container_format.dart';
 import 'package:colportando/core/widgets/container_list_tile_format.dart';
+import 'package:colportando/core/widgets/dialog_format.dart';
+import 'package:colportando/core/widgets/dropdown_format.dart';
 import 'package:colportando/core/widgets/filter_chip_format.dart';
 import 'package:colportando/core/widgets/input_text_formart.dart';
 import 'package:colportando/core/widgets/list_view_format.dart';
 import 'package:colportando/core/widgets/scaffold_format.dart';
+import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
+import 'package:colportando/features/campaigns/presentation/riverpod/campaign_riverpod.dart';
+import 'package:colportando/features/workspace/presentation/riverpod/workspace_riverpod.dart';
 import 'package:flutter/material.dart';
-
-class _Campaign {
-  final String name;
-  final String state;
-
-  const _Campaign({required this.name, required this.state});
-}
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Pantalla principal de campañas de colportaje.
-class CampaignsScreen extends StatefulWidget {
+class CampaignsScreen extends ConsumerStatefulWidget {
   const CampaignsScreen({super.key});
 
   @override
-  State<CampaignsScreen> createState() => _CampaignsScreenState();
+  ConsumerState<CampaignsScreen> createState() => _CampaignsScreenState();
 }
 
-class _CampaignsScreenState extends State<CampaignsScreen> {
+class _CampaignsScreenState extends ConsumerState<CampaignsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String _selectedStateFilter = "Todas";
   String _searchQuery = "";
 
-  final List<_Campaign> _allCampaigns = const [
-    _Campaign(name: "Campaña 1", state: "Activa"),
-    _Campaign(name: "Campaña 2", state: "Proxima"),
-    _Campaign(name: "Campaña 3", state: "Finalizada"),
-  ];
+  bool _isLoading = false;
+
+  List<Map<String, dynamic>> _allCampaigns = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getCampaigns();
+    });
+  }
+
+  Future<void> _getCampaigns() async {
+    final club = ref.read(workspaceProvider).workspace?.clubs.firstOrNull;
+    if (club == null || club.clubId.isEmpty) {
+      if (mounted) {
+        SnackBarFormat().show(
+          context,
+          "No se encontró un club asignado para esta cuenta.",
+          isError: true,
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await ref
+          .read(workspaceProvider.notifier)
+          .listClubCampaigns(clubId: club.clubId);
+
+      if (response != null && response['items'] is List) {
+        setState(() {
+          _allCampaigns = List<Map<String, dynamic>>.from(response['items']);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarFormat().show(
+          context,
+          "Error al cargar la campañas.",
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  Future<void> _changeCampaignStatus(
+    String campaignId,
+    String newStatus,
+  ) async {
+    setState(() => _isLoading = true);
+
+    final result = await ref
+        .read(campaignProvider.notifier)
+        .changeCampaignStatus(campaignId: campaignId, status: newStatus);
+
+    if (!mounted) return;
+
+    final error = ref.read(campaignProvider).errorMessage;
+    if (error != null) {
+      setState(() => _isLoading = false);
+      SnackBarFormat().show(context, error, isError: true);
+    } else if (result != null) {
+      SnackBarFormat().show(context, "Estado actualizado a $newStatus");
+      await _getCampaigns();
+    } else {
+      setState(() => _isLoading = false);
+    }
+  }
+
+  void _showChangeStatusDialog(Map<String, dynamic> campaign) {
+    final campaignId = campaign['campaignId']?.toString() ?? '';
+    final currentStatus = (campaign['status'] ?? 'ACTIVE')
+        .toString()
+        .toUpperCase();
+    String selectedStatus =
+        ['ACTIVE', 'PLANNED', 'CLOSED', 'CANCELLED'].contains(currentStatus)
+        ? currentStatus
+        : 'ACTIVE';
+
+    DialogFormat(
+      title: 'Editar estado',
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          return DropdownFormat<String>(
+            labelText: 'Estado',
+            value: selectedStatus,
+            items: const [
+              DropdownMenuItem(value: 'ACTIVE', child: Text('Activa')),
+              DropdownMenuItem(value: 'PLANNED ', child: Text('Proxima')),
+              DropdownMenuItem(value: 'CLOSED', child: Text('Cerrada')),
+              DropdownMenuItem(value: 'CANCELLED', child: Text('Cancelada')),
+            ],
+            onChanged: (value) {
+              if (value != null) {
+                setDialogState(() => selectedStatus = value);
+              }
+            },
+          );
+        },
+      ),
+      onPressed: () {
+        if (campaignId.isNotEmpty) {
+          _changeCampaignStatus(campaignId, selectedStatus);
+        }
+      },
+    ).show(context);
+  }
 
   @override
   void dispose() {
@@ -44,18 +153,18 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
     super.dispose();
   }
 
-  List<_Campaign> get _filteredCampaigns {
+  List<Map<String, dynamic>> get _filteredCampaigns {
     return _allCampaigns.where((campaign) {
+      final status = (campaign['status'] ?? '').toString().toUpperCase();
+      final name = (campaign['name'] ?? '').toString().toLowerCase();
+
       final matchesState =
           _selectedStateFilter == "Todas" ||
-          (_selectedStateFilter == "Activa" && campaign.state == "Activa") ||
-          (_selectedStateFilter == "Proxima" && campaign.state == "Proxima") ||
-          (_selectedStateFilter == "Finalizada" &&
-              campaign.state == "Finalizada");
-
-      final matchesSearch =
-          _searchQuery.isEmpty ||
-          campaign.name.toLowerCase().contains(_searchQuery);
+          (_selectedStateFilter == "Activa" && status == "ACTIVE") ||
+          (_searchController == "Proxima" && status == "PLANNED") ||
+          (_selectedStateFilter == "Cerrada" && status == "CLOSED") ||
+          (_selectedStateFilter == "Cancelada" && status == "CANCELLED");
+      final matchesSearch = _searchQuery.isEmpty || name.contains(_searchQuery);
 
       return matchesState && matchesSearch;
     }).toList();
@@ -67,11 +176,14 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
 
     return ScaffoldFormat(
       titleAppBar: "Campañas",
-      isLoading: false,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => Navigator.pushNamed(context, GlobalRoute.addCampign),
-        elevation: 50,
-        child: AppIcon.add,
+      isLoading: _isLoading,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton(
+          onPressed: () => Navigator.pushNamed(context, GlobalRoute.addCampign),
+          elevation: 50,
+          child: AppIcon.add,
+        ),
       ),
       children: [
         // Buscador por nombre
@@ -92,9 +204,15 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
         ListViewFormat(
           scrollDirection: Axis.horizontal,
           height: 38,
-          itemCount: 4,
+          itemCount: 5,
           itemBuilder: (context, index) {
-            const options = ["Todas", "Activa", "Proxima", "Finalizada"];
+            const options = [
+              "Todas",
+              "Activa",
+              "Proxima",
+              "Cerrada",
+              "Cancelada",
+            ];
             final option = options[index];
             return FilterChipFormat(
               label: option,
@@ -121,34 +239,44 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: TextFormat.subtitle('Nombre de la campaña'),
-                      ),
+                      Expanded(child: TextFormat.subtitle(campaign['name'])),
                       ButtonFormat.icon(
                         icon: AppIcon.edit,
-                        onPressed: () => Navigator.pushNamed(
-                          context,
-                          GlobalRoute.editCampign,
-                        ),
+                        onPressed: () {
+                          Navigator.pop(context);
+                          _showChangeStatusDialog(campaign);
+                        },
                       ),
                     ],
                   ),
                   AppSpacing.heightMedium,
                   ContainerFormat(
                     children: [
-                      TextFormat.subtitle("Tipo"),
+                      TextFormat.subtitle('Estado:  ${campaign['status']}'),
                       AppSpacing.heightMedium,
-                      TextFormat.subtitle("Estado"),
-                      AppSpacing.heightMedium,
-                      TextFormat.body("Residencia"),
+                      TextFormat.subtitle('Periodo'),
                       AppSpacing.heightSmall,
-                      TextFormat.body("Email"),
-                      AppSpacing.heightSmall,
-                      TextFormat.body("Telefono"),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormat.body(
+                              'Inicio:  ${campaign['startsOn']}',
+                            ),
+                          ),
+
+                          Expanded(
+                            child: TextFormat.body(
+                              'Fin:  ${campaign['endsOn']}',
+                            ),
+                          ),
+                        ],
+                      ),
                       AppSpacing.heightMedium,
-                      TextFormat.subtitle("Documentos"),
-                      AppSpacing.heightSmall,
+                      TextFormat.body(
+                        'Participantes:  ${campaign['participantCount']}',
+                      ),
                       AppSpacing.heightMedium,
+                      TextFormat.body('Grupos:  ${campaign['groupCount']}'),
                       AppSpacing.heightMedium,
                       ButtonFormat.primary(
                         label: "Ver grupos",
@@ -169,8 +297,8 @@ class _CampaignsScreenState extends State<CampaignsScreen> {
                   ),
                 ],
               ).show(context),
-              title: campaign.name,
-              subtitle: campaign.state,
+              title: campaign["name"],
+              subtitle: campaign["status"],
               icon: AppIcon.campana,
             );
           },
