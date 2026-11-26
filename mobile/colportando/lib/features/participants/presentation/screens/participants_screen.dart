@@ -14,65 +14,138 @@ import 'package:colportando/core/widgets/list_view_format.dart';
 import 'package:colportando/core/widgets/scaffold_format.dart';
 import 'package:colportando/core/widgets/snackbar_format.dart';
 import 'package:colportando/core/widgets/text_format.dart';
+import 'package:colportando/features/auth/presentation/riverpod/auth_riverpod.dart';
+import 'package:colportando/features/workspace/presentation/riverpod/workspace_riverpod.dart';
 import 'package:flutter/material.dart';
-
-// Modelo representativo de participante basado en prueba_widgets.dart
-class _Participant {
-  final String name;
-  final String role; // "Asociado" o "Colportor"
-
-  const _Participant({required this.name, required this.role});
-}
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 // Pantalla de participantes asignados a la campaña o zona.
-class ParticipantsScreen extends StatefulWidget {
+class ParticipantsScreen extends ConsumerStatefulWidget {
   const ParticipantsScreen({super.key});
 
   @override
-  State<ParticipantsScreen> createState() => _ParticipantsScreenState();
+  ConsumerState<ParticipantsScreen> createState() => _ParticipantsScreenState();
 }
 
-class _ParticipantsScreenState extends State<ParticipantsScreen> {
+class _ParticipantsScreenState extends ConsumerState<ParticipantsScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  final TextEditingController _searchController = TextEditingController();
+  String _selectedRoleFilter = "Todos";
+  String _searchQuery = "";
+
+  List<Map<String, dynamic>> _allParticipants = [];
+
+  Future<void> _getParticipants() async {
+    final club = ref.read(workspaceProvider).workspace?.clubs.firstOrNull;
+    if (club == null || club.clubId.isEmpty) {
+      if (mounted) {
+        SnackBarFormat().show(
+          context,
+          "No se encontró un club asignado para esta cuenta.",
+          isError: true,
+        );
+      }
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      final response = await ref
+          .read(workspaceProvider.notifier)
+          .listClubMemberships(clubId: club.clubId);
+
+      if (response != null && response['items'] is List) {
+        setState(() {
+          _allParticipants = List<Map<String, dynamic>>.from(response['items']);
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        SnackBarFormat().show(
+          context,
+          "Error al cargar participantes: $e",
+          isError: true,
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
+  // Envía la invitación del club al correo ingresado.
+  Future<void> _handleSendInvitation() async {
+    final club = ref.read(workspaceProvider).workspace?.clubs.firstOrNull;
+    if (club == null || club.clubId.isEmpty) {
+      if (mounted) {
+        SnackBarFormat().show(
+          context,
+          "No se encontró un club asignado para esta cuenta.",
+          isError: true,
+        );
+      }
+      return;
+    }
+
+    final isSent = await ref
+        .read(authProvider.notifier)
+        .createInvitation(
+          clubId: club.clubId,
+          email: _emailController.text.trim(),
+        );
+    if (!mounted) return;
+
+    if (isSent != null) {
+      SnackBarFormat().show(context, "Invitación enviada con éxito");
+      _emailController.clear();
+      await _getParticipants();
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getParticipants();
+    });
+  }
+
   final GlobalKey<FormState> _dialogFormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> _inviteFormKey = GlobalKey<FormState>();
   String? _selectedStatus;
   final List<String> _nameDoc = ["Doc 1", "Doc 2"];
   final List<String> _typeDoc = [
     "Carta de recomendación",
     "Certificado de bautizmo",
   ];
-  final TextEditingController _searchController = TextEditingController();
-  String _selectedRoleFilter = "Todos";
-  String _searchQuery = "";
-
-  // Lista base de participantes
-  final List<_Participant> _allParticipants = const [
-    _Participant(name: "Moisés Martínez", role: "Asociado"),
-    _Participant(name: "Itiel Alvarez", role: "Colportor"),
-    _Participant(name: "Jair Lopez", role: "Asociado"),
-  ];
 
   @override
   void dispose() {
     _searchController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
-  // Filtro reactivo para ListViewFormat basado en prueba_widgets.dart
-  List<_Participant> get _filteredParticipants {
+  List<Map<String, dynamic>> get _filteredParticipants {
     return _allParticipants.where((participant) {
-      // 1. Filtro por rol (Todos, Asociados o Colportores)
+      final name = (participant['displayName'] ?? '').toString().toLowerCase();
+      final condition = (participant['memberCondition'] ?? '')
+          .toString()
+          .toUpperCase();
+
       final matchesRole =
           _selectedRoleFilter == "Todos" ||
           (_selectedRoleFilter == "Asociados" &&
-              participant.role == "Asociado") ||
+              condition.contains("EXPERIENCED")) ||
           (_selectedRoleFilter == "Colportores" &&
-              participant.role == "Colportor");
+              !condition.contains("EXPERIENCED"));
 
-      // 2. Filtro por búsqueda de nombre
-      final matchesSearch =
-          _searchQuery.isEmpty ||
-          participant.name.toLowerCase().contains(_searchQuery);
+      final matchesSearch = _searchQuery.isEmpty || name.contains(_searchQuery);
 
       return matchesRole && matchesSearch;
     }).toList();
@@ -83,14 +156,46 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
     final filteredList = _filteredParticipants;
 
     return ScaffoldFormat(
-      formKey: _formKey,
       titleAppBar: "Participantes",
-      isLoading: false,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () =>
-            Navigator.pushNamed(context, GlobalRoute.addParticipants),
-        elevation: 50,
-        child: AppIcon.add,
+      isLoading: _isLoading,
+      formKey: _formKey,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 80),
+        child: FloatingActionButton(
+          onPressed: () {
+            _emailController.clear();
+            DialogFormat(
+              formKey: _inviteFormKey,
+              title: "Invitar participante",
+              content: Form(
+                key: _inviteFormKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    TextFormat.body(
+                      "Ingresa el correo electrónico de la persona para enviarle la invitación.",
+                    ),
+                    AppSpacing.heightMedium,
+                    InputTextFormart(
+                      controller: _emailController,
+                      prefixIcon: AppIcon.email,
+                      labelText: "Correo electrónico",
+                      hintText: "ejemplo@correo.com",
+                      maxLength: 80,
+                      validator: GlobalValidator.validateEmail,
+                    ),
+                  ],
+                ),
+              ),
+              onPressed: () {
+                _handleSendInvitation();
+              },
+            ).show(context);
+          },
+          elevation: 50,
+          child: AppIcon.add,
+        ),
       ),
       children: [
         // Buscador por nombre
@@ -138,13 +243,19 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                   BottomSheetFormat(
                     title: "Detalles",
                     children: [
-                      TextFormat.subtitle('Nombre del participante'),
+                      TextFormat.subtitle(
+                        participant['displayName'] ?? 'Sin nombre',
+                      ),
                       AppSpacing.heightMedium,
                       ContainerFormat(
                         children: [
                           Row(
                             children: [
-                              Expanded(child: TextFormat.subtitle("Tipo")),
+                              Expanded(
+                                child: TextFormat.subtitle(
+                                  "Condición: ${participant['memberCondition'] ?? 'REGULAR'}",
+                                ),
+                              ),
                               ButtonFormat.icon(
                                 icon: AppIcon.edit,
                                 onPressed: () {
@@ -176,7 +287,6 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                                         context,
                                         "Participación modificada exitosamente",
                                       );
-                                      //Navigator.pop(context);
                                     },
                                   ).show(context);
                                 },
@@ -184,13 +294,17 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                             ],
                           ),
                           AppSpacing.heightMedium,
-                          TextFormat.subtitle("Estado"),
+                          TextFormat.subtitle(
+                            "Estado: ${participant['membershipStatus'] ?? 'ACTIVE'}",
+                          ),
                           AppSpacing.heightMedium,
-                          TextFormat.body("Residencia"),
+                          TextFormat.body(
+                            "Email: ${participant['email'] ?? 'Sin correo'}",
+                          ),
                           AppSpacing.heightSmall,
-                          TextFormat.body("Email"),
-                          AppSpacing.heightSmall,
-                          TextFormat.body("Telefono"),
+                          TextFormat.body(
+                            "ID Membresía: ${participant['membershipId'] ?? ''}",
+                          ),
                           AppSpacing.heightMedium,
                           TextFormat.subtitle("Documentos"),
                           AppSpacing.heightSmall,
@@ -232,8 +346,11 @@ class _ParticipantsScreenState extends State<ParticipantsScreen> {
                       ),
                     ],
                   ).show(context),
-              title: participant.name,
-              subtitle: participant.role,
+              title: participant['displayName'] ?? '',
+              subtitle:
+                  participant['memberCondition'] ??
+                  participant['membershipStatus'] ??
+                  '',
               icon: AppIcon.person,
             );
           },

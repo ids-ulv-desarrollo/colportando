@@ -112,9 +112,13 @@ class _CampaignsScreenState extends ConsumerState<CampaignsScreen> {
     final campaignId = campaign['campaignId']?.toString() ?? '';
     final currentStatus = (campaign['status'] ?? 'ACTIVE')
         .toString()
+        .trim()
         .toUpperCase();
-    String selectedStatus =
-        ['ACTIVE', 'PLANNED', 'CLOSED', 'CANCELLED'].contains(currentStatus)
+
+    // Valores permitidos por el endpoint PUT /operations/campaigns/{id}/status
+    const allowedStatuses = ['ACTIVE', 'CLOSED', 'CANCELLED'];
+
+    String selectedStatus = allowedStatuses.contains(currentStatus)
         ? currentStatus
         : 'ACTIVE';
 
@@ -127,7 +131,6 @@ class _CampaignsScreenState extends ConsumerState<CampaignsScreen> {
             value: selectedStatus,
             items: const [
               DropdownMenuItem(value: 'ACTIVE', child: Text('Activa')),
-              DropdownMenuItem(value: 'PLANNED ', child: Text('Proxima')),
               DropdownMenuItem(value: 'CLOSED', child: Text('Cerrada')),
               DropdownMenuItem(value: 'CANCELLED', child: Text('Cancelada')),
             ],
@@ -263,7 +266,6 @@ class _CampaignsScreenState extends ConsumerState<CampaignsScreen> {
                               'Inicio:  ${campaign['startsOn']}',
                             ),
                           ),
-
                           Expanded(
                             child: TextFormat.body(
                               'Fin:  ${campaign['endsOn']}',
@@ -281,8 +283,13 @@ class _CampaignsScreenState extends ConsumerState<CampaignsScreen> {
                       ButtonFormat.primary(
                         label: "Ver grupos",
                         icon: AppIcon.grupos,
-                        onPressed: () =>
-                            Navigator.pushNamed(context, GlobalRoute.groups),
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          GlobalRoute.groups2,
+                          arguments: {
+                            'campaignId': campaign['campaignId']?.toString() ?? '',
+                          },
+                        ),
                       ),
                       AppSpacing.heightMedium,
                       ButtonFormat.secondary(
